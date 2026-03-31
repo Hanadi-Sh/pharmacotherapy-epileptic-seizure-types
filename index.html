@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Epileptic Seizure Types — Interactive Demo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#f8f9fb; font-family:'DM Sans',system-ui,sans-serif; color:#1e293b; }
+  .wrap { max-width:960px; margin:0 auto; padding:28px 16px; }
+  .title { text-align:center; margin-bottom:22px; }
+  .title h1 { font-size:24px; font-weight:800; color:#0f172a; letter-spacing:-0.5px; }
+  .title p { color:#94a3b8; font-size:13px; margin-top:4px; font-weight:300; }
+  .pills { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+  .cat-group { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+  .cat-label { font-size:10px; font-weight:800; letter-spacing:1px; padding:3px 10px; border-radius:8px; 
+    margin-right:4px; white-space:nowrap; }
+  .pill { padding:5px 12px; border-radius:20px; border:1.5px solid #e2e8f0; background:#fff;
+    color:#64748b; font-size:11px; font-weight:500; cursor:pointer; transition:all 0.25s; font-family:inherit;
+    box-shadow:0 1px 2px rgba(0,0,0,0.04); }
+  .pill:hover { border-color:#cbd5e1; background:#f8fafc; }
+  .pill.on { font-weight:700; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+  .main { display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap; }
+  .fig-box { flex:0 0 320px; background:#fff; border-radius:18px; border:1px solid #e2e8f0;
+    padding:28px 14px 16px; position:relative; box-shadow:0 4px 24px rgba(0,0,0,0.04); overflow:hidden; }
+  .fig-box::before { content:''; position:absolute; top:0; left:0; right:0; height:120px;
+    background:linear-gradient(180deg, #f1f5f9 0%, transparent 100%); opacity:0.5; pointer-events:none; }
+  .info { flex:1; min-width:260px; display:flex; flex-direction:column; gap:14px; }
+  .cat-badge { align-self:flex-start; padding:4px 14px; border-radius:14px; font-size:11px;
+    font-weight:700; letter-spacing:0.5px; }
+  .info h2 { font-size:26px; font-weight:800; color:#0f172a; letter-spacing:-0.5px; }
+  .info .desc { font-size:14px; line-height:1.7; color:#64748b; }
+  .ctrl-box { background:#fff; border-radius:14px; padding:16px; border:1px solid #e2e8f0; box-shadow:0 2px 8px rgba(0,0,0,0.03); }
+  .prog-bar { width:100%; height:5px; background:#e2e8f0; border-radius:3px; overflow:hidden; }
+  .prog-fill { height:100%; border-radius:3px; transition:width 0.05s linear; }
+  .btns { display:flex; gap:10px; margin-top:12px; }
+  .play-btn { flex:1; padding:10px 0; border-radius:10px; border:none; color:#fff;
+    font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:filter 0.2s; }
+  .play-btn:hover { filter:brightness(1.1); }
+  .replay-btn { padding:10px 16px; border-radius:10px; border:1px solid #e2e8f0;
+    background:#fff; color:#64748b; font-size:14px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+  .replay-btn:hover { background:#f8fafc; border-color:#cbd5e1; }
+  .time-label { margin-top:6px; font-size:12px; color:#94a3b8; text-align:center; font-weight:300; }
+  
+  /* Speed control */
+  .speed-row { display:flex; align-items:center; gap:8px; margin-top:10px; justify-content:center; }
+  .speed-label { font-size:11px; font-weight:700; color:#94a3b8; letter-spacing:0.8px; }
+  .speed-btns { display:flex; gap:4px; }
+  .spd-btn { padding:4px 10px; border-radius:8px; border:1.5px solid #e2e8f0; background:#fff;
+    color:#64748b; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+  .spd-btn.active { background:#0f172a; color:#fff; border-color:#0f172a; }
+  .spd-btn:hover:not(.active) { background:#f1f5f9; }
+  
+  .eeg-box { background:#fff; border-radius:14px; padding:14px; border:1px solid #e2e8f0; box-shadow:0 2px 8px rgba(0,0,0,0.03); }
+  .eeg-title { font-size:11px; font-weight:700; color:#94a3b8; letter-spacing:1px; margin-bottom:4px; }
+  .eeg-desc { font-size:13px; color:#64748b; line-height:1.5; margin-bottom:8px; }
+  .tip-box { background:#fffbeb; border-radius:14px; padding:14px; border:1px solid #fde68a;
+    font-size:13px; color:#92400e; line-height:1.6; }
+  .hl-label { margin-top:8px; text-align:center; background:#f1f5f9; border-radius:10px;
+    padding:7px 14px; font-size:12px; font-weight:600; color:#475569; display:none; }
+  .phase-tag { position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:20;
+    color:#fff; padding:4px 18px; border-radius:20px; font-size:11px; font-weight:700;
+    letter-spacing:0.8px; white-space:nowrap; display:none; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+  .footer { text-align:center; margin-top:28px; font-size:11px; color:#cbd5e1; font-weight:300; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:12px;">Dr. Hanadi Al Shaker</div>
+  <div class="title">
+    <h1>Epileptic Seizure Types</h1>
+    <p>Interactive muscle movement demonstration — Focal, Generalised & Unknown-Onset types</p>
+  </div>
+  <div class="pills" id="pills"></div>
+  <div class="main">
+    <div class="fig-box">
+      <div class="phase-tag" id="phaseTag"></div>
+      <svg id="figure" viewBox="0 0 260 600" style="width:100%;max-width:290px;display:block;margin:0 auto;"></svg>
+      <div class="hl-label" id="hlLabel"></div>
+    </div>
+    <div class="info">
+      <div class="cat-badge" id="catBadge"></div>
+      <h2 id="szTitle"></h2>
+      <p class="desc" id="szDesc"></p>
+      <div class="ctrl-box">
+        <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+        <div class="btns">
+          <button class="play-btn" id="playBtn" onclick="toggle()">▶  Play</button>
+          <button class="replay-btn" onclick="doReplay()">↺</button>
+        </div>
+        <div class="time-label" id="timeLabel">0.0s / 0.0s</div>
+        <div class="speed-row">
+          <span class="speed-label">SPEED</span>
+          <div class="speed-btns" id="speedBtns">
+            <button class="spd-btn" data-spd="0.5">0.5×</button>
+            <button class="spd-btn active" data-spd="1">1×</button>
+            <button class="spd-btn" data-spd="1.5">1.5×</button>
+            <button class="spd-btn" data-spd="2">2×</button>
+            <button class="spd-btn" data-spd="3">3×</button>
+          </div>
+        </div>
+      </div>
+      <div class="eeg-box">
+        <div class="eeg-title">EEG PATTERN</div>
+        <div class="eeg-desc" id="eegDesc"></div>
+        <canvas id="eegCanvas" width="300" height="44" style="width:100%;border-radius:6px;"></canvas>
+      </div>
+      <div class="tip-box" id="tipBox"></div>
+    </div>
+  </div>
+  <div class="footer">For educational purposes only — animations are simplified representations</div>
+</div>
+
+<script>
+const SZ = [
+  { id:"tonic-clonic", label:"Tonic-Clonic", cat:"Motor Generalised",
+    desc:"Initial whole-body stiffening (tonic) with arms extending rigidly outward, back arching, and jaw clenching, followed by rhythmic bilateral jerking (clonic) that gradually slows. The most dramatic seizure type.",
+    dur:7000, tip:"Most recognisable seizure. Tonic phase ~10-20s, clonic phase ~30-60s. Post-ictal confusion and fatigue follow." },
+  { id:"tonic", label:"Tonic", cat:"Motor Generalised",
+    desc:"Sustained muscle contraction causes whole-body rigidity. Arms extend rigidly outward and abducted from the body, back arches, jaw clenches. Trunk and proximal muscles are predominantly affected.",
+    dur:4500, tip:"Can cause falls if standing. Often occurs during sleep. Arms extend rigidly outward from the body." },
+  { id:"clonic", label:"Clonic", cat:"Motor Generalised",
+    desc:"Rhythmic bilateral jerking of all limbs. Frequency starts fast then gradually slows (decrescendo pattern). No preceding stiffening phase.",
+    dur:4500, tip:"Rare in isolation — more common as part of a tonic-clonic sequence. Jerking decelerates over time." },
+  { id:"myoclonic", label:"Myoclonic", cat:"Motor Generalised",
+    desc:"Very brief (<100ms) arrhythmic, shock-like jerks predominantly affecting shoulders and arms. The jerk throws the arms outward/upward suddenly.",
+    dur:3500, tip:"So brief it can be mistaken for clumsiness. Often occurs after waking. Can cause objects to be flung from hands." },
+  { id:"atonic", label:"Atonic", cat:"Motor Generalised",
+    desc:"Sudden complete loss of all muscle tone. Head drops first, then knees buckle, then full collapse — known as 'drop attacks'. Like a puppet with cut strings.",
+    dur:3500, tip:"High injury risk from sudden unbraced falls. Patients may wear protective helmets. Recovery is rapid." },
+  { id:"spasms", label:"Epileptic Spasms", cat:"Motor Generalised",
+    desc:"Sudden flexion of trunk and arms in a jackknife pattern — head drops forward, trunk curls, arms abduct then flex inward. Occurs in clusters.",
+    dur:4000, tip:"Most common in the first year of life. Clusters of 10-40 spasms are typical. Associated with West syndrome." },
+  { id:"absence", label:"Absence", cat:"Nonmotor Generalised",
+    desc:"Sudden arrest of behaviour. Patient stares blankly with brief upward rotation of the eyes, lasting 2 to 30 seconds. May have subtle eyelid fluttering and slight head nodding. No fall, no postictal confusion.",
+    dur:4000, tip:"Often mistaken for daydreaming. No fall or convulsion occurs. Returns to previous activity immediately as if nothing happened." },
+  { id:"focal", label:"Focal Aware", cat:"Focal",
+    desc:"Seizure activity confined to one brain region. One arm or hand jerks rhythmically while the rest of the body remains completely normal. Patient stays fully conscious.",
+    dur:4000, tip:"Patient remains fully aware and can describe the experience. May show Jacksonian march — jerking spreads proximally." },
+  { id:"focal-btc", label:"Focal → Bilateral", cat:"Focal",
+    desc:"Begins as focal seizure (one arm jerking), then electrical activity spreads across the corpus callosum to the other hemisphere — becoming a full bilateral tonic-clonic.",
+    dur:8000, tip:"Treatment targets the focal origin. Transition phase shows progressive bilateral involvement before full tonic-clonic." },
+  { id:"focal-impaired", label:"Focal Impaired Awareness", cat:"Focal",
+    desc:"Seizure originates in a localised brain region but impairs consciousness. Patient appears confused, stares, and exhibits automatisms — automatic behaviours such as lip smacking, chewing, or picking at clothing. After the event, may not recall actions.",
+    dur:5500, tip:"Most common type of focal seizure. Patient has no memory of the event. Automatisms are the hallmark clinical feature. Often originates in the temporal lobe." },
+  { id:"focal-nonmotor", label:"Focal Nonmotor", cat:"Focal",
+    desc:"Focal seizure without prominent motor activity. Patient may experience autonomic changes (flushing, sweating, piloerection, salivation, pallor), behaviour arrest (pausing, freezing mid-activity), cognitive symptoms (language problems, thinking problems, feelings of familiarity [déjà vu] or unfamiliarity [jamais vu]), emotional symptoms (sudden fear, depression, joy, anger), or sensory phenomena (numbness, tingling, ringing/buzzing sounds, smells, tastes, visual hallucinations, vertigo).",
+    dur:4500, tip:"Can be subtle and easily missed. Includes autonomic, behaviour arrest, cognitive, emotional, and sensory subtypes. Patient remains aware in this demonstration." },
+  { id:"atypical-absence", label:"Atypical Absence", cat:"Nonmotor Generalised",
+    desc:"Similar to typical absence but with more gradual onset and offset. May include subtle motor features like mild head nodding, slight body slumping, and more pronounced loss of tone. Episodes last longer than typical absence.",
+    dur:5000, tip:"More gradual than typical absence — harder to identify exact start/end. Often seen in Lennox-Gastaut syndrome. Associated with slow spike-wave on EEG (~1.5-2.5 Hz)." },
+  { id:"myoclonic-absence", label:"Myoclonic Absence", cat:"Nonmotor Generalised",
+    desc:"Combines the unresponsive stare of an absence seizure with rhythmic myoclonic jerks of the shoulders and arms. Arms elevate gradually with each jerk while the patient remains unresponsive.",
+    dur:5000, tip:"Rare subtype. Rhythmic arm jerks are time-locked to the 3 Hz spike-wave discharges on EEG. Arms abduct and elevate progressively. May be treatment-resistant." },
+  { id:"eyelid-myoclonia", label:"Eyelid Myoclonia", cat:"Nonmotor Generalised",
+    desc:"Rapid, rhythmic jerking of the eyelids, often with upward deviation of the eyes and brief head extension. Typically triggered by eye closure or photic stimulation. Awareness may or may not be impaired.",
+    dur:4000, tip:"Hallmark of Jeavons syndrome. Characteristically provoked by eye closure. EEG shows generalised polyspike-and-wave discharges. Very photosensitive." },
+  { id:"unknown-tc", label:"Unknown Tonic-Clonic", cat:"Unknown Onset",
+    desc:"A tonic-clonic seizure where the onset — focal or generalised — could not be determined. This may be because the event was unwitnessed, EEG was not recorded, or clinical features were ambiguous.",
+    dur:6000, tip:"May be reclassified as focal or generalised once more data is available (e.g. video-EEG monitoring). Treatment decisions are guided by the best available clinical evidence." },
+  { id:"unknown-spasms", label:"Unknown Epileptic Spasms", cat:"Unknown Onset",
+    desc:"Epileptic spasms where the onset type is undetermined. Sudden flexion or extension of the body occurring in clusters, but insufficient data to classify as focal or generalised in origin.",
+    dur:4000, tip:"Further investigation with video-EEG may clarify the onset. Spasms may be reclassified once the underlying aetiology is better understood." },
+  { id:"unknown-arrest", label:"Unknown Behaviour Arrest", cat:"Unknown Onset",
+    desc:"Sudden cessation of all activity — the patient freezes mid-action and becomes unresponsive. Onset type (focal or generalised) cannot be determined from available clinical information.",
+    dur:4000, tip:"May resemble absence or focal behaviour arrest. Classification may change with further EEG monitoring or clinical data." },
+];
+
+const CC = { "Motor Generalised":"#dc2626", "Nonmotor Generalised":"#64748b", "Focal":"#0891b2", "Unknown Onset":"#7c3aed" };
+
+// Enhanced skin palette for 3D effect
+const skin="#EDCBA8", skinL="#F7E2CC", skinH="#FAECD8", skinM="#E0B890", skinS="#C9976A", skinD="#B8845C";
+const hair="#1A1209", hairH="#2D2010";
+const shortsC="#5B6370", shortsB="#7E8694", shortsD="#3F4550", shortsH="#8D95A3";
+
+let sel=0, playing=false, elapsed=0, afId=null, startT=null, speed=1;
+
+// Build pills grouped by category
+const pillsEl = document.getElementById("pills");
+const catGroups = [
+  { label:"FOCAL", cats:["Focal"], color:"#0891b2" },
+  { label:"GENERALISED", cats:["Motor Generalised","Nonmotor Generalised"], color:"#dc2626" },
+  { label:"UNKNOWN ONSET", cats:["Unknown Onset"], color:"#7c3aed" },
+];
+catGroups.forEach(grp => {
+  const row = document.createElement("div");
+  row.className = "cat-group";
+  const lbl = document.createElement("span");
+  lbl.className = "cat-label";
+  lbl.textContent = grp.label;
+  lbl.style.cssText = `color:${grp.color};background:${grp.color}10;border:1.5px solid ${grp.color}25;`;
+  row.appendChild(lbl);
+  SZ.forEach((s,i) => {
+    if (!grp.cats.includes(s.cat)) return;
+    const b = document.createElement("button");
+    b.className = "pill"; b.textContent = s.label;
+    b.dataset.idx = i;
+    b.onclick = () => pick(i);
+    row.appendChild(b);
+  });
+  pillsEl.appendChild(row);
+});
+
+// Speed buttons
+document.getElementById("speedBtns").addEventListener("click", (e) => {
+  const btn = e.target.closest(".spd-btn");
+  if (!btn) return;
+  speed = parseFloat(btn.dataset.spd);
+  document.querySelectorAll(".spd-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  // Adjust animation timing if playing
+  if (playing) { startT = performance.now() - elapsed / speed; }
+});
+
+function pick(i) { playing=false; elapsed=0; if(afId) cancelAnimationFrame(afId); sel=i; updateUI(); render(); }
+function toggle() {
+  if (elapsed >= SZ[sel].dur) { elapsed=0; startT=null; }
+  playing = !playing;
+  if (playing) startAnim(); else { if(afId) cancelAnimationFrame(afId); }
+  updateUI();
+}
+function doReplay() { playing=false; elapsed=0; if(afId) cancelAnimationFrame(afId); setTimeout(()=>{ playing=true; startAnim(); updateUI(); },50); updateUI(); }
+
+function startAnim() {
+  startT = performance.now() - elapsed / speed;
+  function tick(now) {
+    elapsed = (now - startT) * speed;
+    if (elapsed >= SZ[sel].dur) { elapsed = SZ[sel].dur; playing = false; updateUI(); render(); return; }
+    render(); updateUI();
+    afId = requestAnimationFrame(tick);
+  }
+  afId = requestAnimationFrame(tick);
+}
+
+function updateUI() {
+  const sz = SZ[sel], cc = CC[sz.cat], prog = sz.dur>0?Math.min(elapsed/sz.dur,1):0;
+  document.querySelectorAll(".pill").forEach((p) => {
+    const i = parseInt(p.dataset.idx);
+    const on = i===sel, c = CC[SZ[i].cat];
+    p.className = "pill" + (on?" on":"");
+    p.style.borderColor = on?c:"#e2e8f0";
+    p.style.background = on?c+"14":"#fff";
+    p.style.color = on?c:"#64748b";
+  });
+  document.getElementById("catBadge").textContent = sz.cat.toUpperCase();
+  document.getElementById("catBadge").style.cssText = `align-self:flex-start;padding:4px 14px;border-radius:14px;font-size:11px;font-weight:700;letter-spacing:0.5px;background:${cc}10;color:${cc};border:1.5px solid ${cc}30;`;
+  document.getElementById("szTitle").textContent = sz.label;
+  document.getElementById("szDesc").textContent = sz.desc;
+  document.getElementById("progFill").style.width = (prog*100)+"%";
+  document.getElementById("progFill").style.background = cc;
+  const pb = document.getElementById("playBtn");
+  pb.style.background = cc;
+  pb.textContent = playing?"⏸  Pause":elapsed>=sz.dur?"▶  Replay":"▶  Play";
+  document.getElementById("timeLabel").textContent = (elapsed/1000).toFixed(1)+"s / "+(sz.dur/1000).toFixed(1)+"s";
+  document.getElementById("eegDesc").textContent = sz.cat.includes("Generalised")?"Bilateral synchronous discharge — both hemispheres":sz.cat==="Unknown Onset"?"Onset type undetermined — insufficient data to classify":sz.cat==="Focal"?"Focal onset — localised brain region":"Focal onset — localised brain region";
+  document.getElementById("tipBox").innerHTML = "<strong>Key point: </strong>"+sz.tip;
+  
+  const hl = playing ? getHL(sz.id, prog) : null;
+  const pt = document.getElementById("phaseTag");
+  const ll = document.getElementById("hlLabel");
+  if (hl && hl.ph) { pt.style.display="block"; pt.style.background=hl.pc; pt.textContent=hl.ph; } else { pt.style.display="none"; }
+  if (hl && hl.l) { ll.style.display="block"; ll.textContent=hl.l; } else { ll.style.display="none"; }
+  drawEEG(sz.id, playing, elapsed, cc);
+}
+
+function getHL(id, p) {
+  const all=["head","torso","lArm","rArm","lLeg","rLeg"];
+  switch(id) {
+    case "tonic-clonic": return p<0.35?{p:all,c:"#ef4444",l:"TONIC — Arms extending rigid & outward, back arching, jaw clenching",ph:"TONIC PHASE",pc:"#dc2626"}:p<0.4?{p:all,c:"#f59e0b",l:"TRANSITION — Stiffness breaking into tremor",ph:"TRANSITION",pc:"#d97706"}:{p:all,c:"#eab308",l:"CLONIC — Bilateral rhythmic jerking, gradually slowing",ph:"CLONIC PHASE",pc:"#ca8a04"};
+    case "tonic": return {p:all,c:"#ef4444",l:"All muscles — arms rigid outward, back arched, jaw clenched"};
+    case "clonic": return {p:all,c:"#eab308",l:"All muscles — bilateral rhythmic jerking (decrescendo)"};
+    case "myoclonic": return {p:["lArm","rArm","torso","head"],c:"#8b5cf6",l:"Shoulders & arms — lightning-fast shock jerks"};
+    case "atonic": return p<0.2?{p:all,c:"#6366f1",l:"All tone lost — body beginning to drop",ph:"DROP ATTACK",pc:"#4f46e5"}:{p:all,c:"#6366f1",l:"Complete collapse — falling to ground",ph:"COLLAPSE",pc:"#4338ca"};
+    case "spasms": return {p:["torso","lArm","rArm","head"],c:"#ec4899",l:"Flexor spasm — trunk curling, arms abducting"};
+    case "absence": return {p:["head"],c:"#94a3b8",l:"Behaviour arrest — blank stare, upward eye rotation, subtle lid flutter"};
+    case "focal": return {p:["rArm"],c:"#06b6d4",l:"Right arm only — rhythmic localised jerking"};
+    case "focal-btc": return p<0.3?{p:["rArm"],c:"#06b6d4",l:"Focal — right arm rhythmic jerking",ph:"FOCAL ONSET",pc:"#0891b2"}:p<0.45?{p:["rArm","torso","head"],c:"#f59e0b",l:"Spreading — activity reaching midline",ph:"SPREADING",pc:"#d97706"}:p<0.55?{p:all,c:"#ef4444",l:"Bilateral tonic — whole-body stiffening",ph:"BILATERAL TONIC",pc:"#dc2626"}:{p:all,c:"#eab308",l:"Bilateral clonic — rhythmic bilateral jerking",ph:"BILATERAL CLONIC",pc:"#ca8a04"};
+    case "focal-impaired": return {p:["head","lArm","torso"],c:"#0891b2",l:"Impaired awareness — automatisms (lip smacking, chewing, picking at clothing)",ph:"AUTOMATISMS",pc:"#0891b2"};
+    case "focal-nonmotor": return {p:["head","torso"],c:"#06b6d4",l:"Behaviour arrest — pausing, freezing, autonomic changes (flushing, sweating, piloerection, salivation, pallor)"};
+    case "atypical-absence": return {p:["head","torso","lArm","rArm"],c:"#94a3b8",l:"Atypical absence — gradual onset, subtle tone loss, slumping",ph:"ATYPICAL ABSENCE",pc:"#64748b"};
+    case "myoclonic-absence": return {p:["head","lArm","rArm"],c:"#94a3b8",l:"Myoclonic absence — rhythmic arm jerks with staring",ph:"MYOCLONIC JERKS",pc:"#64748b"};
+    case "eyelid-myoclonia": return {p:["head"],c:"#94a3b8",l:"Eyelid myoclonia — rapid eyelid jerks, head extension",ph:"EYELID JERKS",pc:"#64748b"};
+    case "unknown-tc": return p<0.35?{p:all,c:"#8b5cf6",l:"TONIC — whole-body stiffening (onset unknown)",ph:"TONIC PHASE",pc:"#7c3aed"}:p<0.42?{p:all,c:"#f59e0b",l:"TRANSITION",ph:"TRANSITION",pc:"#d97706"}:{p:all,c:"#a78bfa",l:"CLONIC — bilateral rhythmic jerking (onset unknown)",ph:"CLONIC PHASE",pc:"#7c3aed"};
+    case "unknown-spasms": return {p:["torso","lArm","rArm","head"],c:"#8b5cf6",l:"Flexor spasm — trunk curling, arms abducting (onset unknown)"};
+    case "unknown-arrest": return {p:["head"],c:"#8b5cf6",l:"Behaviour arrest — frozen, unresponsive (onset unknown)"};
+    default: return {p:[],c:"",l:""};
+  }
+}
+
+/* ========== CORRECTED ANATOMICAL ANIMATIONS ========== */
+/* IMPORTANT: Arms pivot around shoulder joints via ROTATION ONLY.
+   Left arm pivot: (82, 112). Negative r = swing outward/left. 
+   Right arm pivot: (178, 112). Positive r = swing outward/right.
+   NEVER use large ty on arms — it shifts the drawn-hanging-arm onto the head!
+   
+   Clinical tonic posture: arms ABDUCT OUTWARD from body, rigid and extended.
+   ~50-70° rotation = arms extend horizontally outward. 
+   jawClench: 0 = relaxed, 1 = fully clenched */
+
+function getAnim(id, t, dur) {
+  const p = dur>0 ? Math.min(t/dur, 1) : 0;
+  const Z = {head:{},torso:{},lArm:{},rArm:{},lLeg:{},rLeg:{},jawClench:0};
+
+  switch(id) {
+
+    /* TONIC-CLONIC: 
+       Tonic = arms extend rigidly OUTWARD (abducted), back arches, jaw clenches
+       Clonic = bilateral rhythmic jerking that decelerates
+       LEFT ARM OUTWARD = positive r.  RIGHT ARM OUTWARD = negative r. */
+    case "tonic-clonic": {
+      const tonicEnd = 0.35, transEnd = 0.42;
+      if (p < tonicEnd) {
+        const s = Math.min(p / tonicEnd * 1.5, 1);
+        const ease = 1 - Math.pow(1 - s, 2);
+        return {
+          head: { ty: -ease*6, r: -ease*5 },
+          torso: { sy: 1 + ease*0.03, r: -ease*3 },
+          lArm: { r: ease*45, tx: -ease*8 },
+          rArm: { r: -ease*45, tx: ease*8 },
+          lLeg: { r: -ease*7, sy: 1 + ease*0.02 },
+          rLeg: { r: ease*7, sy: 1 + ease*0.02 },
+          jawClench: ease
+        };
+      }
+      if (p < transEnd) {
+        const tr = (p - tonicEnd) / (transEnd - tonicEnd);
+        const tremor = Math.sin(t * 0.06) * 5 * tr;
+        return {
+          head: { ty: -6 + tremor*0.3, r: -5 + tremor*0.6 },
+          torso: { sy: 1.03, r: -3 + tremor*0.4 },
+          lArm: { r: 45 + tremor*2, tx: -8 },
+          rArm: { r: -45 + tremor*2, tx: 8 },
+          lLeg: { r: -7 + tremor*0.8, sy: 1.02 },
+          rLeg: { r: 7 + tremor*0.8, sy: 1.02 },
+          jawClench: 1
+        };
+      }
+      const clonicP = (p - transEnd) / (1 - transEnd);
+      const decel = 1 - clonicP * 0.6;
+      const freq = 0.03 - clonicP * 0.015;
+      const j = Math.sin(t * freq * speed) * 14 * decel;
+      const k = Math.cos(t * freq * 0.8 * speed) * 12 * decel;
+      const armExt = 45 * (1 - clonicP * 0.6);
+      const jawPulse = (Math.sin(t * freq * speed * 1.5) + 1) * 0.35 * decel;
+      return {
+        head: { tx: j*0.4, ty: -4*(1-clonicP*0.5), r: j*0.8 },
+        torso: { tx: j*0.2, r: j*0.5 },
+        lArm: { r: armExt + j*3, tx: -(8*(1-clonicP*0.6)) },
+        rArm: { r: -armExt + k*3, tx: 8*(1-clonicP*0.6) },
+        lLeg: { r: -7*(1-clonicP*0.3) + j*1.2, tx: j*0.3 },
+        rLeg: { r: 7*(1-clonicP*0.3) + k*1.2, tx: k*0.3 },
+        jawClench: jawPulse
+      };
+    }
+
+    /* TONIC: Arms extend rigidly OUTWARD, back arches, jaw clenches hard */
+    case "tonic": {
+      const rampUp = Math.min(p * 4, 1);
+      const ease = 1 - Math.pow(1 - rampUp, 3);
+      const tremor = rampUp > 0.5 ? Math.sin(t * 0.04) * 2 * ease : 0;
+      return {
+        head: { ty: -ease*8, r: -ease*7 + tremor*0.4 },
+        torso: { sy: 1 + ease*0.04, r: -ease*5 + tremor*0.3 },
+        lArm: { r: ease*50 + tremor, tx: -ease*10 },
+        rArm: { r: -ease*50 + tremor, tx: ease*10 },
+        lLeg: { r: -ease*10, sy: 1 + ease*0.02 },
+        rLeg: { r: ease*10, sy: 1 + ease*0.02 },
+        jawClench: ease
+      };
+    }
+
+    /* CLONIC: Bilateral rhythmic jerking that decelerates */
+    case "clonic": {
+      const decel = 1 - p * 0.5;
+      const freqMod = 1 - p * 0.4;
+      const j = Math.sin(t * 0.028 * freqMod) * 16 * decel;
+      const k = Math.cos(t * 0.033 * freqMod) * 14 * decel;
+      const jawPulse = (Math.sin(t * 0.028 * freqMod * 1.3) + 1) * 0.3 * decel;
+      return {
+        head: { tx: j*0.4, r: j*0.7 },
+        torso: { tx: j*0.2, r: j*0.4 },
+        lArm: { r: 10 + j*3 },
+        rArm: { r: -10 + k*3 },
+        lLeg: { r: j*1.3, tx: j*0.3 },
+        rLeg: { r: k*1.3, tx: k*0.3 },
+        jawClench: jawPulse
+      };
+    }
+
+    /* MYOCLONIC: Brief shock-like jerks — arms flung OUTWARD suddenly.
+       LEFT ARM OUTWARD = positive r.  RIGHT ARM OUTWARD = negative r. */
+    case "myoclonic": {
+      const cycle = (t % 900) / 900;
+      let sp = 0;
+      if (cycle < 0.08) sp = Math.sin(cycle / 0.08 * Math.PI * 0.5);
+      else if (cycle < 0.15) sp = Math.cos((cycle - 0.08) / 0.07 * Math.PI * 0.5);
+      else if (cycle < 0.22) sp = -Math.sin((cycle - 0.15) / 0.07 * Math.PI) * 0.15;
+      
+      return {
+        head: { ty: -Math.abs(sp)*8, r: sp*3 },
+        torso: { ty: -Math.abs(sp)*5 },
+        lArm: { r: sp*50, tx: -sp*15 },
+        rArm: { r: -sp*50, tx: sp*15 },
+        lLeg: { ty: -Math.abs(sp)*3 },
+        rLeg: { ty: -Math.abs(sp)*3 },
+        jawClench: Math.abs(sp) * 0.4
+      };
+    }
+
+    /* ATONIC: Body drops straight DOWN as a unit */
+    case "atonic": {
+      const drop = Math.min(p * 2.5, 1);
+      const grav = drop * drop;
+      const fallDist = grav * 70;
+      
+      return {
+        head: { ty: fallDist + grav*8, r: grav*25 },
+        torso: { ty: fallDist, r: grav*12 },
+        lArm: { ty: fallDist, r: grav*8 },
+        rArm: { ty: fallDist, r: -grav*5 },
+        lLeg: { r: grav*12 },
+        rLeg: { r: -grav*12 },
+        jawClench: 0
+      };
+    }
+
+    /* EPILEPTIC SPASMS: Flexor spasm — trunk curls, arms abduct OUTWARD */
+    case "spasms": {
+      const cycle = (t % 1200) / 1200;
+      let f = 0;
+      if (cycle < 0.12) f = Math.sin(cycle / 0.12 * Math.PI * 0.5);
+      else if (cycle < 0.25) f = Math.cos((cycle - 0.12) / 0.13 * Math.PI * 0.5);
+      
+      return {
+        head: { r: f*20, ty: f*10 },
+        torso: { r: f*18, ty: f*6, sy: 1-f*0.02 },
+        lArm: { r: f*40 },
+        rArm: { r: -f*40 },
+        lLeg: { r: f*14 },
+        rLeg: { r: -f*14 },
+        jawClench: f * 0.5
+      };
+    }
+
+    /* ABSENCE: Blank stare, eyelid flutter, slight head nod, slack mouth */
+    case "absence": {
+      const nod = Math.sin(t * 0.005) * 4;
+      const droop = Math.min(p * 3, 1) * 3;
+      const mouthSlack = Math.min(p * 4, 1);
+      return { 
+        head: { r: nod, ty: Math.abs(nod) * 0.5 },
+        torso: {},
+        lArm: { r: droop },
+        rArm: { r: -droop },
+        lLeg: {}, 
+        rLeg: {}, 
+        jawClench: 0,
+        absenceMouth: mouthSlack,
+      };
+    }
+
+    /* FOCAL AWARE: Only right arm jerks rhythmically */
+    case "focal": {
+      const j = Math.sin(t * 0.025) * 14;
+      const wrist = Math.sin(t * 0.04) * 8;
+      return {
+        ...Z,
+        rArm: { r: j*2 + wrist*0.5 }
+      };
+    }
+
+    /* FOCAL→BILATERAL: Focal right arm → spread → bilateral tonic-clonic */
+    case "focal-btc": {
+      const focalEnd = 0.3, spreadEnd = 0.45, tonicEnd2 = 0.55;
+      
+      if (p < focalEnd) {
+        const j = Math.sin(t * 0.025) * 12;
+        return { ...Z, rArm: { r: j*2.5 } };
+      }
+      if (p < spreadEnd) {
+        const sp = (p - focalEnd) / (spreadEnd - focalEnd);
+        const ease = 1 - Math.pow(1 - sp, 2);
+        const j = Math.sin(t * 0.025) * 14;
+        return {
+          head: { r: -ease*4, tx: ease*3 },
+          torso: { r: ease*2 },
+          lArm: { r: j * ease * 1.5 + ease*10 },
+          rArm: { r: j*2.5 - ease*10 },
+          lLeg: { r: j * ease * 0.5 },
+          rLeg: { r: j * ease * 0.5 },
+          jawClench: ease * 0.4
+        };
+      }
+      if (p < tonicEnd2) {
+        const tp = (p - spreadEnd) / (tonicEnd2 - spreadEnd);
+        const ease = 1 - Math.pow(1 - tp, 2);
+        const tremor = Math.sin(t * 0.05) * 2 * ease;
+        return {
+          head: { ty: -ease*6, r: -ease*5 + tremor },
+          torso: { sy: 1 + ease*0.03, r: -ease*3 },
+          lArm: { r: ease*45 + tremor, tx: -ease*8 },
+          rArm: { r: -ease*45 + tremor, tx: ease*8 },
+          lLeg: { r: -ease*7 },
+          rLeg: { r: ease*7 },
+          jawClench: ease
+        };
+      }
+      const cp = (p - tonicEnd2) / (1 - tonicEnd2);
+      const decel = 1 - cp * 0.5;
+      const freq = 0.028 - cp * 0.012;
+      const j = Math.sin(t * freq) * 14 * decel;
+      const k = Math.cos(t * freq * 0.85) * 12 * decel;
+      const armExt = 45 * (1 - cp * 0.55);
+      const jawPulse = (Math.sin(t * freq * 1.4) + 1) * 0.3 * decel;
+      return {
+        head: { tx: j*0.4, ty: -4*(1-cp*0.5), r: j*0.7 },
+        torso: { tx: j*0.2, r: j*0.4 },
+        lArm: { r: armExt + j*2.5 },
+        rArm: { r: -armExt + k*2.5 },
+        lLeg: { r: j*1.1 },
+        rLeg: { r: k*1.1 },
+        jawClench: jawPulse
+      };
+    }
+
+    /* FOCAL IMPAIRED AWARENESS: Confused stare + automatisms (hand fumbling, head turning) */
+    case "focal-impaired": {
+      const onset = Math.min(p * 5, 1);
+      const autoRhythm = Math.sin(t * 0.012) * onset;
+      const handFumble = Math.sin(t * 0.02) * 8 * onset;
+      const headTurn = Math.sin(t * 0.006) * 10 * onset;
+      const lipSmack = (Math.sin(t * 0.025) + 1) * 0.3 * onset;
+      return {
+        head: { r: headTurn, ty: Math.abs(autoRhythm) * 2 },
+        torso: { r: autoRhythm * 3 },
+        lArm: { r: 15 * onset + handFumble },
+        rArm: { r: -8 * onset + Math.sin(t * 0.015) * 5 * onset },
+        lLeg: {},
+        rLeg: {},
+        jawClench: 0,
+        absenceMouth: lipSmack,
+      };
+    }
+
+    /* FOCAL NONMOTOR: Behaviour arrest — patient freezes, subtle autonomic signs */
+    case "focal-nonmotor": {
+      const freeze = Math.min(p * 4, 1);
+      const subtle = Math.sin(t * 0.004) * 1.5 * freeze;
+      const flush = freeze;
+      return {
+        head: { r: subtle, ty: freeze * 1.5 },
+        torso: {},
+        lArm: { r: freeze * 3 },
+        rArm: { r: -freeze * 3 },
+        lLeg: {},
+        rLeg: {},
+        jawClench: 0,
+        absenceMouth: freeze * 0.3,
+      };
+    }
+
+    /* ATYPICAL ABSENCE: Gradual onset, subtle tone loss, significant slump */
+    case "atypical-absence": {
+      const gradual = Math.min(p * 2.5, 1);
+      const slump = gradual * gradual;
+      const nod = Math.sin(t * 0.004) * 3 * slump;
+      const toneLoss = slump * 10;
+      return {
+        head: { r: nod + slump * 15, ty: slump * 4 },
+        torso: { r: slump * 8, ty: slump * 3 },
+        lArm: { r: toneLoss + 5 * slump + nod * 0.3 },
+        rArm: { r: -(toneLoss + 3 * slump) + nod * 0.2 },
+        lLeg: {},
+        rLeg: {},
+        jawClench: 0,
+        absenceMouth: slump * 0.8,
+      };
+    }
+
+    /* MYOCLONIC ABSENCE: Staring + rhythmic arm jerks that elevate arms */
+    case "myoclonic-absence": {
+      const onset = Math.min(p * 3, 1);
+      const jerkCycle = Math.sin(t * 0.019);
+      const jerk = jerkCycle > 0.5 ? (jerkCycle - 0.5) * 2 : 0;
+      const elevation = p * 25 * onset;
+      return {
+        head: { r: Math.sin(t * 0.005) * 3 * onset, ty: onset * 2 },
+        torso: { ty: jerk * 3 * onset },
+        lArm: { r: elevation + jerk * 12 * onset, tx: -onset * 4 },
+        rArm: { r: -(elevation + jerk * 12 * onset), tx: onset * 4 },
+        lLeg: {},
+        rLeg: {},
+        jawClench: 0,
+        absenceMouth: onset * 0.5,
+      };
+    }
+
+    /* EYELID MYOCLONIA: Rapid eyelid jerking, slight head extension */
+    case "eyelid-myoclonia": {
+      const onset = Math.min(p * 4, 1);
+      const headExt = -onset * 3;
+      const flicker = Math.sin(t * 0.04) * 2 * onset;
+      return {
+        head: { ty: headExt + flicker * 0.3, r: flicker * 0.5 },
+        torso: {},
+        lArm: { r: onset * 2 },
+        rArm: { r: -onset * 2 },
+        lLeg: {},
+        rLeg: {},
+        jawClench: 0,
+        eyelidMyoclonia: onset,
+      };
+    }
+
+    /* UNKNOWN TONIC-CLONIC: Same presentation as tonic-clonic, unknown origin */
+    case "unknown-tc": {
+      const tonicEnd = 0.35, transEnd = 0.42;
+      if (p < tonicEnd) {
+        const s = Math.min(p / tonicEnd * 1.5, 1);
+        const ease = 1 - Math.pow(1 - s, 2);
+        return {
+          head: { ty: -ease*6, r: -ease*5 },
+          torso: { sy: 1 + ease*0.03, r: -ease*3 },
+          lArm: { r: ease*45, tx: -ease*8 },
+          rArm: { r: -ease*45, tx: ease*8 },
+          lLeg: { r: -ease*7, sy: 1 + ease*0.02 },
+          rLeg: { r: ease*7, sy: 1 + ease*0.02 },
+          jawClench: ease
+        };
+      }
+      if (p < transEnd) {
+        const tr = (p - tonicEnd) / (transEnd - tonicEnd);
+        const tremor = Math.sin(t * 0.06) * 5 * tr;
+        return {
+          head: { ty: -6 + tremor*0.3, r: -5 + tremor*0.6 },
+          torso: { sy: 1.03, r: -3 + tremor*0.4 },
+          lArm: { r: 45 + tremor*2, tx: -8 },
+          rArm: { r: -45 + tremor*2, tx: 8 },
+          lLeg: { r: -7 + tremor*0.8, sy: 1.02 },
+          rLeg: { r: 7 + tremor*0.8, sy: 1.02 },
+          jawClench: 1
+        };
+      }
+      const clonicP = (p - transEnd) / (1 - transEnd);
+      const decel2 = 1 - clonicP * 0.6;
+      const freq2 = 0.03 - clonicP * 0.015;
+      const j2 = Math.sin(t * freq2 * speed) * 14 * decel2;
+      const k2 = Math.cos(t * freq2 * 0.8 * speed) * 12 * decel2;
+      const armExt2 = 45 * (1 - clonicP * 0.6);
+      const jawPulse2 = (Math.sin(t * freq2 * speed * 1.5) + 1) * 0.35 * decel2;
+      return {
+        head: { tx: j2*0.4, ty: -4*(1-clonicP*0.5), r: j2*0.8 },
+        torso: { tx: j2*0.2, r: j2*0.5 },
+        lArm: { r: armExt2 + j2*3, tx: -(8*(1-clonicP*0.6)) },
+        rArm: { r: -armExt2 + k2*3, tx: 8*(1-clonicP*0.6) },
+        lLeg: { r: -7*(1-clonicP*0.3) + j2*1.2, tx: j2*0.3 },
+        rLeg: { r: 7*(1-clonicP*0.3) + k2*1.2, tx: k2*0.3 },
+        jawClench: jawPulse2
+      };
+    }
+
+    /* UNKNOWN EPILEPTIC SPASMS: Same as spasms, unknown origin */
+    case "unknown-spasms": {
+      const cycle = (t % 1200) / 1200;
+      let f = 0;
+      if (cycle < 0.12) f = Math.sin(cycle / 0.12 * Math.PI * 0.5);
+      else if (cycle < 0.25) f = Math.cos((cycle - 0.12) / 0.13 * Math.PI * 0.5);
+      return {
+        head: { r: f*20, ty: f*10 },
+        torso: { r: f*18, ty: f*6, sy: 1-f*0.02 },
+        lArm: { r: f*40 },
+        rArm: { r: -f*40 },
+        lLeg: { r: f*14 },
+        rLeg: { r: -f*14 },
+        jawClench: f * 0.5
+      };
+    }
+
+    /* UNKNOWN BEHAVIOUR ARREST: Sudden freeze */
+    case "unknown-arrest": {
+      const freeze = Math.min(p * 5, 1);
+      const microDrift = Math.sin(t * 0.003) * 1 * freeze;
+      return {
+        head: { r: microDrift, ty: freeze * 2 },
+        torso: {},
+        lArm: { r: freeze * 2 },
+        rArm: { r: -freeze * 2 },
+        lLeg: {},
+        rLeg: {},
+        jawClench: 0,
+        absenceMouth: freeze * 0.4,
+      };
+    }
+
+    default: return Z;
+  }
+}
+
+function tf(v) {
+  if(!v) return "";
+  let s = "";
+  if(v.tx) s += `translateX(${v.tx}px) `;
+  if(v.ty) s += `translateY(${v.ty}px) `;
+  if(v.r) s += `rotate(${v.r}deg) `;
+  if(v.sy) s += `scaleY(${v.sy}) `;
+  return s.trim();
+}
+
+function render() {
+  const sz = SZ[sel], prog = sz.dur>0?Math.min(elapsed/sz.dur,1):0;
+  const a = playing ? getAnim(sz.id, elapsed, sz.dur) : {head:{},torso:{},lArm:{},rArm:{},lLeg:{},rLeg:{},jawClench:0};
+  const jawClench = a.jawClench || 0; // 0=relaxed, 1=fully clenched
+  const absenceMouth = a.absenceMouth || 0; // 0=normal, 1=slack
+  const eyelidMyoclonia = a.eyelidMyoclonia || 0; // 0=normal, 1=active
+  const hl = playing ? getHL(sz.id, prog) : {p:[],c:""};
+  const lit = (part) => playing && hl.p.includes(part);
+  const glow = (part) => lit(part) ? `drop-shadow(0 0 10px ${hl.c}88)` : "none";
+  const isAbsenceFlutter = ["absence"].includes(sz.id) && playing;
+  const isVacantStare = ["atypical-absence","myoclonic-absence","focal-impaired","focal-nonmotor","unknown-arrest"].includes(sz.id) && playing;
+  const isAbsence = isAbsenceFlutter || isVacantStare;
+  const isEyelidMyoclonia = sz.id === "eyelid-myoclonia" && playing;
+  const isFocalNonmotor = sz.id === "focal-nonmotor" && playing;
+
+  const hlOv = (pathD, part) => lit(part) ? `<path d="${pathD}" fill="${hl.c}" opacity="0.15"><animate attributeName="opacity" values="0.08;0.22;0.08" dur="0.7s" repeatCount="indefinite"/></path>` : "";
+
+  const svg = document.getElementById("figure");
+  svg.innerHTML = `
+    <defs>
+      <!-- 3D skin gradients -->
+      <radialGradient id="skinGrad" cx="45%" cy="35%">
+        <stop offset="0%" stop-color="${skinH}"/>
+        <stop offset="60%" stop-color="${skin}"/>
+        <stop offset="100%" stop-color="${skinM}"/>
+      </radialGradient>
+      <radialGradient id="chestGrad" cx="48%" cy="25%">
+        <stop offset="0%" stop-color="${skinH}"/>
+        <stop offset="40%" stop-color="${skinL}"/>
+        <stop offset="85%" stop-color="${skin}"/>
+        <stop offset="100%" stop-color="${skinM}"/>
+      </radialGradient>
+      <radialGradient id="limbGrad" cx="50%" cy="30%">
+        <stop offset="0%" stop-color="${skinL}"/>
+        <stop offset="70%" stop-color="${skin}"/>
+        <stop offset="100%" stop-color="${skinM}"/>
+      </radialGradient>
+      <linearGradient id="limbSide" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${skinM}"/>
+        <stop offset="30%" stop-color="${skinL}"/>
+        <stop offset="70%" stop-color="${skinL}"/>
+        <stop offset="100%" stop-color="${skinM}"/>
+      </linearGradient>
+      <linearGradient id="legGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${skinM}"/>
+        <stop offset="35%" stop-color="${skinL}"/>
+        <stop offset="65%" stop-color="${skinL}"/>
+        <stop offset="100%" stop-color="${skinM}"/>
+      </linearGradient>
+      <linearGradient id="shortsGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${shortsH}"/>
+        <stop offset="100%" stop-color="${shortsC}"/>
+      </linearGradient>
+      <radialGradient id="shortsFold" cx="50%" cy="50%">
+        <stop offset="0%" stop-color="${shortsH}"/>
+        <stop offset="100%" stop-color="${shortsD}"/>
+      </radialGradient>
+      <!-- 3D shadow filters -->
+      <filter id="bodyShadow" x="-20%" y="-5%" width="140%" height="120%">
+        <feDropShadow dx="3" dy="4" stdDeviation="4" flood-color="#00000018"/>
+      </filter>
+      <filter id="limbShadow" x="-20%" y="-10%" width="140%" height="130%">
+        <feDropShadow dx="2" dy="3" stdDeviation="3" flood-color="#00000012"/>
+      </filter>
+      <radialGradient id="floorShadow" cx="50%" cy="50%">
+        <stop offset="0%" stop-color="#000" stop-opacity="0.08"/>
+        <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+
+    <!-- Floor shadow -->
+    <ellipse cx="130" cy="516" rx="55" ry="8" fill="url(#floorShadow)"/>
+
+    <!-- LEFT LEG -->
+    <g style="transform-origin:108px 300px;transform:${tf(a.lLeg)};filter:${glow('lLeg')}" filter="url(#limbShadow)">
+      <!-- Thigh skin (hidden under shorts at top) -->
+      <path d="M95 296 Q92 330 91 360 Q90 382 93 400 L123 400 Q126 382 125 360 Q124 330 122 296 Z" fill="url(#legGrad)"/>
+      <path d="M100 310 Q96 335 95 360" stroke="${skinM}" stroke-width="0.8" fill="none" opacity="0.3"/>
+      <path d="M118 310 Q121 335 122 360" stroke="${skinM}" stroke-width="0.6" fill="none" opacity="0.2"/>
+      <!-- Knee -->
+      <ellipse cx="108" cy="400" rx="16" ry="9" fill="${skin}"/>
+      <ellipse cx="108" cy="399" rx="10" ry="5" fill="${skinL}" opacity="0.3"/>
+      <!-- Shin -->
+      <path d="M93 400 Q91 432 90 458 Q89 478 91 494 L121 494 Q123 478 122 458 Q121 432 123 400 Z" fill="url(#legGrad)"/>
+      <path d="M104 410 Q100 440 98 470" stroke="${skinM}" stroke-width="0.6" fill="none" opacity="0.25"/>
+      <path d="M118 415 Q124 435 121 460" stroke="${skinM}" stroke-width="0.7" fill="none" opacity="0.2"/>
+      <!-- Ankle -->
+      <ellipse cx="106" cy="492" rx="13" ry="5" fill="${skinM}" opacity="0.15"/>
+      <!-- Foot -->
+      <path d="M88 492 L85 500 Q84 514 107 514 Q122 514 124 502 L122 492 Z" fill="${skin}"/>
+      <path d="M88 500 Q90 506 107 508 Q120 506 122 500" fill="${skinL}" opacity="0.2"/>
+      <path d="M85 500 Q84 510 95 513" stroke="${skinM}" stroke-width="0.5" fill="none" opacity="0.3"/>
+      ${hlOv("M95 296 Q92 330 91 360 Q90 382 93 400 L123 400 Q126 382 125 360 Q124 330 122 296 Z","lLeg")}
+    </g>
+
+    <!-- RIGHT LEG -->
+    <g style="transform-origin:152px 300px;transform:${tf(a.rLeg)};filter:${glow('rLeg')}" filter="url(#limbShadow)">
+      <!-- Thigh skin (hidden under shorts at top) -->
+      <path d="M139 296 Q136 330 135 360 Q134 382 137 400 L167 400 Q170 382 169 360 Q168 330 166 296 Z" fill="url(#legGrad)"/>
+      <path d="M144 310 Q140 335 139 360" stroke="${skinM}" stroke-width="0.8" fill="none" opacity="0.3"/>
+      <path d="M162 310 Q165 335 166 360" stroke="${skinM}" stroke-width="0.6" fill="none" opacity="0.2"/>
+      <ellipse cx="152" cy="400" rx="16" ry="9" fill="${skin}"/>
+      <ellipse cx="152" cy="399" rx="10" ry="5" fill="${skinL}" opacity="0.3"/>
+      <path d="M137 400 Q135 432 134 458 Q133 478 135 494 L165 494 Q167 478 166 458 Q165 432 167 400 Z" fill="url(#legGrad)"/>
+      <path d="M148 410 Q144 440 142 470" stroke="${skinM}" stroke-width="0.6" fill="none" opacity="0.25"/>
+      <path d="M162 415 Q168 435 165 460" stroke="${skinM}" stroke-width="0.7" fill="none" opacity="0.2"/>
+      <ellipse cx="150" cy="492" rx="13" ry="5" fill="${skinM}" opacity="0.15"/>
+      <path d="M132 492 L130 500 Q130 514 152 514 Q166 514 168 502 L166 492 Z" fill="${skin}"/>
+      <path d="M132 500 Q134 506 152 508 Q164 506 166 500" fill="${skinL}" opacity="0.2"/>
+      ${hlOv("M139 296 Q136 330 135 360 Q134 382 137 400 L167 400 Q170 382 169 360 Q168 330 166 296 Z","rLeg")}
+    </g>
+
+    <!-- TORSO -->
+    <g style="transform-origin:130px 150px;transform:${tf(a.torso)};filter:${glow('torso')}" filter="url(#bodyShadow)">
+      <!-- Shoulder bridges — fill gaps between torso and arms -->
+      <ellipse cx="82" cy="112" rx="14" ry="10" fill="${skin}"/>
+      <ellipse cx="178" cy="112" rx="14" ry="10" fill="${skin}"/>
+      <!-- Main torso with 3D gradient -->
+      <path d="M82 110 Q88 104 130 102 Q172 104 178 110 L182 132 Q180 155 178 185 L176 225 Q173 262 171 298 L89 298 Q87 262 84 225 L82 185 Q80 155 78 132 Z" fill="url(#chestGrad)"/>
+      
+      <!-- Chest muscle definition — pectorals -->
+      <path d="M95 118 Q110 132 128 128" stroke="${skinM}" stroke-width="0.9" fill="none" opacity="0.25"/>
+      <path d="M165 118 Q150 132 132 128" stroke="${skinM}" stroke-width="0.9" fill="none" opacity="0.25"/>
+      <!-- Pec shadow -->
+      <ellipse cx="112" cy="128" rx="16" ry="8" fill="${skinM}" opacity="0.06"/>
+      <ellipse cx="148" cy="128" rx="16" ry="8" fill="${skinM}" opacity="0.06"/>
+      
+      <!-- Nipples -->
+      <circle cx="108" cy="140" r="2.5" fill="${skinM}" opacity="0.3"/>
+      <circle cx="152" cy="140" r="2.5" fill="${skinM}" opacity="0.3"/>
+      
+      ${isFocalNonmotor ? (() => {
+        const hb = elapsed * 0.0165; // ~165 bpm
+        const beat = (Math.sin(hb * Math.PI * 2) + 1) * 0.5;
+        const sc = 1 + beat * 0.22;
+        const mainFill = beat > 0.5 ? '#f87171' : '#dc2626';
+        const atrFillR = beat > 0.5 ? '#ef4444' : '#dc2626';
+        const atrFillL = beat > 0.5 ? '#dc2626' : '#b91c1c';
+        const pulse1R = 14 + (elapsed % 550) / 550 * 18;
+        const pulse1Op = Math.max(0, 0.35 - (elapsed % 550) / 550 * 0.35);
+        const pulse2R = 14 + ((elapsed + 275) % 550) / 550 * 18;
+        const pulse2Op = Math.max(0, 0.2 - ((elapsed + 275) % 550) / 550 * 0.2);
+        return `
+      <!-- ANATOMICAL HEART — JS-driven pumping (patient's LEFT chest) -->
+      <g transform="translate(145, 162) scale(${sc})">
+        <!-- Aorta arch -->
+        <path d="M-1 -10 C-1 -16, 2 -19, 6 -19 C10 -19, 12 -16, 12 -12 L12 -7" 
+          fill="#b91c1c" stroke="#991b1b" stroke-width="0.5"/>
+        <!-- Superior vena cava -->
+        <path d="M-5 -8 L-5 -17 C-5 -19, -4 -20, -2 -20 L0 -20 L0 -16 L-3 -16 L-3 -8" 
+          fill="#7f1d1d" stroke="#991b1b" stroke-width="0.4"/>
+        <!-- Pulmonary artery -->
+        <path d="M3 -10 C3 -14, 0 -15, -3 -14 L-6 -12 L-5 -10 L-2 -12 C0 -13, 2 -12, 2 -10" 
+          fill="#dc2626" stroke="#991b1b" stroke-width="0.3"/>
+        <!-- Right atrium -->
+        <path d="M-8 -6 C-12 -6, -14 -2, -13 2 L-11 4 L-6 2 L-7 -2 C-7 -4, -6 -5, -5 -5" 
+          fill="${atrFillR}" stroke="#991b1b" stroke-width="0.4"/>
+        <!-- Left atrium -->
+        <path d="M10 -6 C13 -6, 15 -2, 14 2 L12 4 L8 2 L9 -2 C9 -4, 8 -5, 7 -5" 
+          fill="${atrFillL}" stroke="#991b1b" stroke-width="0.4"/>
+        <!-- Main body — ventricles -->
+        <path d="M-11 4 C-13 8, -12 14, -8 18 C-4 22, 0 24, 1 24 C2 24, 6 22, 10 18 C14 14, 15 8, 12 4 L8 2 C5 3, 3 4, 1 4 C-1 4, -3 3, -6 2 Z" 
+          fill="${mainFill}" stroke="#991b1b" stroke-width="0.5"/>
+        <!-- Interventricular septum -->
+        <path d="M1 4 L1 22" stroke="#991b1b" stroke-width="0.6" opacity="0.4"/>
+        <!-- Ventricle contours -->
+        <path d="M3 6 C5 10, 6 14, 5 18" stroke="#991b1b" stroke-width="0.5" fill="none" opacity="0.3"/>
+        <path d="M-3 6 C-5 10, -6 14, -5 18" stroke="#7f1d1d" stroke-width="0.4" fill="none" opacity="0.25"/>
+        <!-- Coronary arteries -->
+        <path d="M-2 2 C-5 6, -8 10, -9 15" stroke="#fca5a5" stroke-width="0.6" fill="none" opacity="0.5"/>
+        <path d="M4 2 C7 6, 9 10, 10 14" stroke="#fca5a5" stroke-width="0.5" fill="none" opacity="0.4"/>
+        <!-- Ventricle highlights -->
+        <ellipse cx="-4" cy="12" rx="4" ry="5" fill="#f87171" opacity="${0.1 + beat * 0.15}"/>
+        <ellipse cx="6" cy="12" rx="3.5" ry="5" fill="#ef4444" opacity="${0.08 + beat * 0.12}"/>
+        <ellipse cx="1" cy="22" rx="3" ry="2" fill="#991b1b" opacity="0.15"/>
+      </g>
+      <!-- Pulse rings -->
+      <circle cx="145" cy="174" r="${pulse1R}" fill="none" stroke="#ef4444" stroke-width="0.8" opacity="${pulse1Op}"/>
+      <circle cx="145" cy="174" r="${pulse2R}" fill="none" stroke="#ef4444" stroke-width="0.5" opacity="${pulse2Op}"/>
+      `;
+      })() : ''}
+      
+      <!-- Sternum line -->
+      <line x1="130" y1="118" x2="130" y2="220" stroke="${skinM}" stroke-width="0.6" opacity="0.12"/>
+      
+      <!-- Rib cage suggestion -->
+      <path d="M110 155 Q120 152 130 153" stroke="${skinM}" stroke-width="0.4" fill="none" opacity="0.1"/>
+      <path d="M150 155 Q140 152 130 153" stroke="${skinM}" stroke-width="0.4" fill="none" opacity="0.1"/>
+      <path d="M112 165 Q122 162 130 163" stroke="${skinM}" stroke-width="0.4" fill="none" opacity="0.08"/>
+      <path d="M148 165 Q138 162 130 163" stroke="${skinM}" stroke-width="0.4" fill="none" opacity="0.08"/>
+      
+      <!-- Abdominal lines -->
+      <path d="M120 175 Q130 173 140 175" stroke="${skinM}" stroke-width="0.4" fill="none" opacity="0.12"/>
+      <path d="M120 190 Q130 188 140 190" stroke="${skinM}" stroke-width="0.4" fill="none" opacity="0.1"/>
+      <path d="M122 205 Q130 203 138 205" stroke="${skinM}" stroke-width="0.4" fill="none" opacity="0.08"/>
+      
+      <!-- Side body contour (3D depth) -->
+      <path d="M82 115 Q80 145 80 175 Q82 200 84 225" stroke="${skinM}" stroke-width="1" fill="none" opacity="0.15"/>
+      <path d="M178 115 Q180 145 180 175 Q178 200 176 225" stroke="${skinM}" stroke-width="1" fill="none" opacity="0.15"/>
+      
+      <!-- Navel -->
+      <ellipse cx="130" cy="228" rx="3.5" ry="4.5" fill="${skinM}" opacity="0.35"/>
+      <ellipse cx="130" cy="227" rx="2" ry="2.5" fill="${skinD}" opacity="0.15"/>
+      
+      <!-- TROUSER SHORTS — straight bottom -->
+      <path d="M80 252 Q130 246 180 252 L180 308 L80 308 Z" fill="url(#shortsGrad)"/>
+      <!-- Waistband with 3D -->
+      <path d="M80 252 Q130 246 180 252 L180 266 Q130 260 80 266 Z" fill="${shortsB}"/>
+      <path d="M80 255 Q130 250 180 255" stroke="${shortsD}" stroke-width="0.6" opacity="0.3"/>
+      <!-- Belt -->
+      <path d="M80 256 Q130 251 180 256 L180 263 Q130 258 80 263 Z" fill="${shortsD}"/>
+      <!-- Belt buckle -->
+      <rect x="126" y="252" width="8" height="7" rx="1.5" fill="#9CA3AF" opacity="0.5"/>
+      <rect x="128" y="254" width="4" height="3" rx="0.5" fill="#B0B8C4" opacity="0.4"/>
+      <!-- Fly -->
+      <line x1="130" y1="263" x2="130" y2="298" stroke="${shortsD}" stroke-width="0.7" opacity="0.2"/>
+      <!-- Pocket outlines -->
+      <path d="M88 268 L88 288 Q90 291 93 291 L112 287 L112 268" stroke="${shortsD}" stroke-width="0.5" fill="none" opacity="0.1"/>
+      <path d="M172 268 L172 288 Q170 291 167 291 L148 287 L148 268" stroke="${shortsD}" stroke-width="0.5" fill="none" opacity="0.1"/>
+      <!-- Side seams -->
+      <path d="M80 258 L80 308" stroke="${shortsD}" stroke-width="0.5" opacity="0.15"/>
+      <path d="M180 258 L180 308" stroke="${shortsD}" stroke-width="0.5" opacity="0.15"/>
+      <!-- Hem line -->
+      <path d="M80 305 L180 305" stroke="${shortsD}" stroke-width="0.8" opacity="0.15"/>
+      <!-- Fabric wrinkle hints -->
+      <path d="M100 275 Q106 278 112 276" stroke="${shortsD}" stroke-width="0.3" fill="none" opacity="0.08"/>
+      <path d="M148 275 Q154 278 160 276" stroke="${shortsD}" stroke-width="0.3" fill="none" opacity="0.08"/>
+      ${hlOv("M82 110 Q88 104 130 102 Q172 104 178 110 L182 132 Q180 155 178 185 L176 225 Q173 262 171 298 L89 298 Q87 262 84 225 L82 185 Q80 155 78 132 Z","torso")}
+    </g>
+
+    <!-- LEFT ARM -->
+    <g style="transform-origin:82px 112px;transform:${tf(a.lArm)};filter:${glow('lArm')}" filter="url(#limbShadow)">
+      <!-- Upper arm (bicep/tricep) -->
+      <path d="M70 118 Q60 130 50 158 Q46 178 44 202 L63 204 Q65 180 69 160 Q74 138 82 122 Z" fill="url(#limbSide)"/>
+      <!-- Bicep contour -->
+      <path d="M72 130 Q64 145 58 165" stroke="${skinM}" stroke-width="0.7" fill="none" opacity="0.2"/>
+      <!-- Tricep shadow -->
+      <path d="M65 128 Q56 148 52 170" stroke="${skinM}" stroke-width="0.5" fill="none" opacity="0.15"/>
+      <!-- Elbow -->
+      <ellipse cx="50" cy="202" rx="11" ry="7" fill="${skinM}" opacity="0.12"/>
+      <!-- Forearm -->
+      <path d="M44 202 Q39 228 36 250 Q34 262 35 274 L55 276 Q56 262 57 250 Q59 228 63 204 Z" fill="url(#limbSide)"/>
+      <!-- Forearm muscle line -->
+      <path d="M48 210 Q43 230 40 255" stroke="${skinM}" stroke-width="0.5" fill="none" opacity="0.15"/>
+      <!-- Wrist -->
+      <ellipse cx="44" cy="274" rx="9" ry="4" fill="${skinM}" opacity="0.1"/>
+      <!-- Hand with 3D form -->
+      <path d="M33 272 Q31 282 29 290 L27 298 Q29 306 40 309 Q49 312 55 307 L57 298 Q57 288 56 280 L55 274 Z" fill="url(#limbGrad)"/>
+      <!-- Fingers -->
+      <path d="M27 298 Q24 312 27 318 Q29 321 32 318 Q34 310 33 300" fill="${skin}" stroke="${skinM}" stroke-width="0.4"/>
+      <path d="M32 300 Q30 314 32 322 Q34 325 37 322 Q39 314 37 302" fill="${skin}" stroke="${skinM}" stroke-width="0.4"/>
+      <path d="M37 302 Q36 316 38 324 Q40 327 43 324 Q45 316 43 304" fill="${skin}" stroke="${skinM}" stroke-width="0.4"/>
+      <path d="M43 304 Q42 316 43 322 Q45 325 48 322 Q49 315 48 305" fill="${skin}" stroke="${skinM}" stroke-width="0.4"/>
+      <!-- Thumb -->
+      <path d="M55 282 Q59 290 59 298 Q57 305 53 303 Q51 296 53 287" fill="${skin}" stroke="${skinM}" stroke-width="0.4"/>
+      ${hlOv("M70 118 Q60 130 50 158 Q46 178 44 202 L63 204 Q65 180 69 160 Q74 138 82 122 Z","lArm")}
+    </g>
+
+    <!-- RIGHT ARM -->
+    <g style="transform-origin:178px 112px;transform:${tf(a.rArm)};filter:${glow('rArm')}" filter="url(#limbShadow)">
+      <path d="M190 118 Q200 130 210 158 Q214 178 216 202 L197 204 Q195 180 191 160 Q186 138 178 122 Z" fill="url(#limbSide)"/>
+      <path d="M188 130 Q196 145 202 165" stroke="${skinM}" stroke-width="0.7" fill="none" opacity="0.2"/>
+      <path d="M195 128 Q204 148 208 170" stroke="${skinM}" stroke-width="0.5" fill="none" opacity="0.15"/>
+      <ellipse cx="210" cy="202" rx="11" ry="7" fill="${skinM}" opacity="0.12"/>
+      <path d="M216 202 Q221 228 224 250 Q226 262 225 274 L205 276 Q204 262 203 250 Q201 228 197 204 Z" fill="url(#limbSide)"/>
+      <path d="M212 210 Q217 230 220 255" stroke="${skinM}" stroke-width="0.5" fill="none" opacity="0.15"/>
+      <ellipse cx="216" cy="274" rx="9" ry="4" fill="${skinM}" opacity="0.1"/>
+      <path d="M227 272 Q229 282 231 290 L233 298 Q231 306 220 309 Q211 312 205 307 L203 298 Q203 288 204 280 L205 274 Z" fill="url(#limbGrad)"/>
+      <path d="M233 298 Q236 312 233 318 Q231 321 228 318 Q226 310 227 300" fill="${skin}" stroke="${skinM}" stroke-width="0.4"/>
+      <path d="M228 300 Q230 314 228 322 Q226 325 223 322 Q221 314 223 302" fill="${skin}" stroke="${skinM}" stroke-width="0.4"/>
+      <path d="M223 302 Q224 316 222 324 Q220 327 217 324 Q215 316 217 304" fill="${skin}" stroke="${skinM}" stroke-width="0.4"/>
+      <path d="M217 304 Q218 316 217 322 Q215 325 212 322 Q211 315 212 305" fill="${skin}" stroke="${skinM}" stroke-width="0.4"/>
+      <path d="M205 282 Q201 290 201 298 Q203 305 207 303 Q209 296 207 287" fill="${skin}" stroke="${skinM}" stroke-width="0.4"/>
+      ${hlOv("M190 118 Q200 130 210 158 Q214 178 216 202 L197 204 Q195 180 191 160 Q186 138 178 122 Z","rArm")}
+    </g>
+
+    <!-- NECK with 3D -->
+    <g style="transform-origin:130px 98px;transform:${tf(a.head)}">
+      <path d="M118 90 L116 106 L144 106 L142 90 Z" fill="url(#limbGrad)"/>
+      <!-- Sternocleidomastoid shadows -->
+      <path d="M120 92 L118 104" stroke="${skinM}" stroke-width="0.6" fill="none" opacity="0.2"/>
+      <path d="M140 92 L142 104" stroke="${skinM}" stroke-width="0.6" fill="none" opacity="0.2"/>
+      <!-- Throat highlight -->
+      <path d="M126 94 Q130 96 134 94" stroke="${skinL}" stroke-width="0.5" fill="none" opacity="0.2"/>
+    </g>
+
+    <!-- HEAD with 3D lighting -->
+    <g style="transform-origin:130px 95px;transform:${tf(a.head)};filter:${glow('head')}" filter="url(#bodyShadow)">
+      <!-- Head base -->
+      <ellipse cx="130" cy="56" rx="34" ry="43" fill="url(#skinGrad)"/>
+      <!-- 3D forehead highlight -->
+      <ellipse cx="128" cy="38" rx="18" ry="12" fill="${skinH}" opacity="0.2"/>
+      <!-- Cheek highlights for 3D -->
+      <ellipse cx="112" cy="62" rx="8" ry="6" fill="${skinH}" opacity="0.12"/>
+      <ellipse cx="148" cy="62" rx="8" ry="6" fill="${skinH}" opacity="0.12"/>
+      <!-- Jawline shadow -->
+      <path d="M100 78 Q115 88 130 90 Q145 88 160 78" stroke="${skinM}" stroke-width="0.8" fill="none" opacity="0.15"/>
+
+      <!-- Left ear with 3D -->
+      <ellipse cx="95" cy="58" rx="7" ry="12" fill="${skin}"/>
+      <ellipse cx="95" cy="58" rx="4" ry="8" fill="${skinM}" opacity="0.2"/>
+      <path d="M96 52 Q93 58 96 64" stroke="${skinM}" stroke-width="0.5" fill="none" opacity="0.3"/>
+      <!-- Right ear -->
+      <ellipse cx="165" cy="58" rx="7" ry="12" fill="${skin}"/>
+      <ellipse cx="165" cy="58" rx="4" ry="8" fill="${skinM}" opacity="0.2"/>
+      <path d="M164 52 Q167 58 164 64" stroke="${skinM}" stroke-width="0.5" fill="none" opacity="0.3"/>
+
+      <!-- Hair with volume/3D -->
+      <path d="M99 40 Q99 14 130 11 Q161 14 161 40 Q159 22 130 20 Q101 22 99 40 Z" fill="${hair}"/>
+      <path d="M96 46 Q95 30 99 18 Q110 7 130 5 Q150 7 161 18 Q165 30 164 46 Q159 28 130 25 Q101 28 96 46 Z" fill="${hair}"/>
+      <!-- Hair shine -->
+      <path d="M110 12 Q125 8 140 12" stroke="${hairH}" stroke-width="2" fill="none" opacity="0.3"/>
+      <path d="M105 18 Q125 13 145 18" stroke="${hairH}" stroke-width="1.5" fill="none" opacity="0.15"/>
+      <!-- Side hair -->
+      <path d="M96 46 Q94 38 96 30" fill="${hair}" stroke="${hair}" stroke-width="2.5"/>
+      <path d="M164 46 Q166 38 164 30" fill="${hair}" stroke="${hair}" stroke-width="2.5"/>
+
+      <!-- Eyebrows -->
+      ${isEyelidMyoclonia ? `
+        <!-- Eyelid Myoclonia: eyebrows slightly raised with jerky movement -->
+        <path d="M110 ${43 - Math.abs(Math.sin(elapsed * 0.03)) * 2} Q117 ${40 - Math.abs(Math.sin(elapsed * 0.03)) * 2} 124 ${43 - Math.abs(Math.sin(elapsed * 0.03)) * 2}" stroke="${hair}" stroke-width="1.8" fill="none" opacity="0.5"/>
+        <path d="M136 ${43 - Math.abs(Math.sin(elapsed * 0.032)) * 2} Q143 ${40 - Math.abs(Math.sin(elapsed * 0.032)) * 2} 150 ${43 - Math.abs(Math.sin(elapsed * 0.032)) * 2}" stroke="${hair}" stroke-width="1.8" fill="none" opacity="0.5"/>
+      ` : isAbsence ? `
+        <!-- Absence: eyebrows relax/flatten — vacant expression -->
+        <path d="M111 45 Q117 44 124 45" stroke="${hair}" stroke-width="1.6" fill="none" opacity="0.35"/>
+        <path d="M136 45 Q143 44 149 45" stroke="${hair}" stroke-width="1.6" fill="none" opacity="0.35"/>
+      ` : `
+        <path d="M110 44 Q117 41 124 43" stroke="${hair}" stroke-width="2" fill="none" opacity="0.55"/>
+        <path d="M136 43 Q143 41 150 44" stroke="${hair}" stroke-width="2" fill="none" opacity="0.55"/>
+      `}
+
+      <!-- Eyes -->
+      ${isEyelidMyoclonia ? `
+        <!-- EYELID MYOCLONIA: Rapid lid jerking, eyes deviate upward -->
+        <ellipse cx="118" cy="51" rx="6.5" ry="5" fill="white"/>
+        <ellipse cx="142" cy="51" rx="6.5" ry="5" fill="white"/>
+        <!-- Upward deviated iris -->
+        <circle cx="118" cy="${49 - eyelidMyoclonia * 2}" r="3.2" fill="#3B2506"/>
+        <circle cx="142" cy="${49 - eyelidMyoclonia * 2}" r="3.2" fill="#3B2506"/>
+        <circle cx="118" cy="${49 - eyelidMyoclonia * 2}" r="1.8" fill="#1a1a1a"/>
+        <circle cx="142" cy="${49 - eyelidMyoclonia * 2}" r="1.8" fill="#1a1a1a"/>
+        <!-- Rapid eyelid flutter — more intense than absence -->
+        <ellipse cx="118" cy="${47 + Math.sin(elapsed * 0.03) * 2 + (Math.sin(elapsed * 0.05) > 0.3 ? 4 : 0)}" 
+          rx="7.5" ry="${3 + (Math.sin(elapsed * 0.05) > 0.3 ? 3 : 0)}" fill="${skin}" opacity="${0.4 + (Math.sin(elapsed * 0.05) > 0.3 ? 0.55 : 0)}"/>
+        <ellipse cx="142" cy="${47 + Math.sin(elapsed * 0.032) * 2 + (Math.sin(elapsed * 0.048) > 0.3 ? 4 : 0)}" 
+          rx="7.5" ry="${3 + (Math.sin(elapsed * 0.048) > 0.3 ? 3 : 0)}" fill="${skin}" opacity="${0.4 + (Math.sin(elapsed * 0.048) > 0.3 ? 0.55 : 0)}"/>
+        <path d="M112 ${46 + Math.sin(elapsed * 0.03) * 1.5} Q118 ${44 + Math.sin(elapsed * 0.03) * 2} 124 ${46 + Math.sin(elapsed * 0.03) * 1.5}" 
+          stroke="${skinM}" stroke-width="0.8" fill="none" opacity="0.4"/>
+        <path d="M136 ${46 + Math.sin(elapsed * 0.032) * 1.5} Q142 ${44 + Math.sin(elapsed * 0.032) * 2} 148 ${46 + Math.sin(elapsed * 0.032) * 1.5}" 
+          stroke="${skinM}" stroke-width="0.8" fill="none" opacity="0.4"/>
+      ` : isVacantStare ? `
+        <!-- VACANT STARE ONLY — no eyelid flutter, just glazed open eyes -->
+        <ellipse cx="118" cy="51" rx="6.5" ry="5.5" fill="white"/>
+        <ellipse cx="142" cy="51" rx="6.5" ry="5.5" fill="white"/>
+        <!-- Glazed unfocused iris -->
+        <circle cx="118" cy="51" r="3.8" fill="#6B5A3E" opacity="0.7"/>
+        <circle cx="142" cy="51" r="3.8" fill="#6B5A3E" opacity="0.7"/>
+        <!-- Dilated pupils -->
+        <circle cx="118" cy="51" r="2.2" fill="#1a1a1a" opacity="0.6"/>
+        <circle cx="142" cy="51" r="2.2" fill="#1a1a1a" opacity="0.6"/>
+        <!-- Glazed sheen — no highlights, vacant look -->
+        <ellipse cx="118" cy="50" rx="5" ry="3.5" fill="white" opacity="0.12"/>
+        <ellipse cx="142" cy="50" rx="5" ry="3.5" fill="white" opacity="0.12"/>
+        <!-- Static upper eyelid crease (no flutter) -->
+        <path d="M112 47 Q118 45 124 47" stroke="${skinM}" stroke-width="0.6" fill="none" opacity="0.3"/>
+        <path d="M136 47 Q142 45 148 47" stroke="${skinM}" stroke-width="0.6" fill="none" opacity="0.3"/>
+      ` : isAbsenceFlutter ? `
+        <!-- ABSENCE: UPWARD EYE ROTATION with subtle lid flutter -->
+        <!-- Wide open eyes showing whites below iris -->
+        <ellipse cx="118" cy="51" rx="6.5" ry="5.5" fill="white"/>
+        <ellipse cx="142" cy="51" rx="6.5" ry="5.5" fill="white"/>
+        <!-- Iris rotated UPWARD — positioned higher in eye socket -->
+        <circle cx="118" cy="${47 + Math.sin(elapsed * 0.006) * 1}" r="3.8" fill="#6B5A3E" opacity="0.8"/>
+        <circle cx="142" cy="${47 + Math.sin(elapsed * 0.006) * 1}" r="3.8" fill="#6B5A3E" opacity="0.8"/>
+        <!-- Pupil also rotated upward -->
+        <circle cx="118" cy="${47 + Math.sin(elapsed * 0.006) * 1}" r="2" fill="#1a1a1a"/>
+        <circle cx="142" cy="${47 + Math.sin(elapsed * 0.006) * 1}" r="2" fill="#1a1a1a"/>
+        <!-- More sclera (white) visible BELOW the iris due to upward rotation -->
+        <ellipse cx="118" cy="54" rx="4.5" ry="2" fill="white" opacity="0.95"/>
+        <ellipse cx="142" cy="54" rx="4.5" ry="2" fill="white" opacity="0.95"/>
+        <!-- SUBTLE eyelid flutter (not closing) -->
+        <ellipse cx="118" cy="${46.5 + Math.sin(elapsed * 0.025) * 0.8}" 
+          rx="7" ry="${2 + Math.sin(elapsed * 0.04) * 0.5}" fill="${skin}" opacity="${0.25 + Math.sin(elapsed * 0.04) * 0.15}"/>
+        <ellipse cx="142" cy="${46.5 + Math.sin(elapsed * 0.027) * 0.8}" 
+          rx="7" ry="${2 + Math.sin(elapsed * 0.038) * 0.5}" fill="${skin}" opacity="${0.25 + Math.sin(elapsed * 0.038) * 0.15}"/>
+        <!-- Upper eyelid crease -->
+        <path d="M112 ${46 + Math.sin(elapsed * 0.018) * 0.6} Q118 ${44 + Math.sin(elapsed * 0.018) * 0.8} 124 ${46 + Math.sin(elapsed * 0.018) * 0.6}" 
+          stroke="${skinM}" stroke-width="0.8" fill="none" opacity="0.4"/>
+        <path d="M136 ${46 + Math.sin(elapsed * 0.019) * 0.6} Q142 ${44 + Math.sin(elapsed * 0.019) * 0.8} 148 ${46 + Math.sin(elapsed * 0.019) * 0.6}" 
+          stroke="${skinM}" stroke-width="0.8" fill="none" opacity="0.4"/>
+      ` : `
+        <!-- Normal eyes with 3D -->
+        <ellipse cx="118" cy="51" rx="6" ry="4" fill="white"/>
+        <ellipse cx="142" cy="51" rx="6" ry="4" fill="white"/>
+        <!-- Iris -->
+        <circle cx="118" cy="51" r="3.2" fill="#3B2506"/>
+        <circle cx="142" cy="51" r="3.2" fill="#3B2506"/>
+        <!-- Pupil -->
+        <circle cx="118" cy="51" r="1.8" fill="#1a1a1a"/>
+        <circle cx="142" cy="51" r="1.8" fill="#1a1a1a"/>
+        <!-- Eye highlights -->
+        <circle cx="116.5" cy="49.5" r="1" fill="white" opacity="0.9"/>
+        <circle cx="140.5" cy="49.5" r="1" fill="white" opacity="0.9"/>
+        <circle cx="119.5" cy="52" r="0.5" fill="white" opacity="0.5"/>
+        <circle cx="143.5" cy="52" r="0.5" fill="white" opacity="0.5"/>
+        <!-- Upper eyelid crease -->
+        <path d="M112 47 Q118 45 124 47" stroke="${skinM}" stroke-width="0.6" fill="none" opacity="0.3"/>
+        <path d="M136 47 Q142 45 148 47" stroke="${skinM}" stroke-width="0.6" fill="none" opacity="0.3"/>
+        <!-- Lower lash line -->
+        <path d="M113 54 Q118 56 123 54" stroke="${skinM}" stroke-width="0.3" fill="none" opacity="0.2"/>
+        <path d="M137 54 Q142 56 147 54" stroke="${skinM}" stroke-width="0.3" fill="none" opacity="0.2"/>
+      `}
+
+      <!-- Nose with 3D -->
+      <path d="M128 54 Q130 63 127 68 Q130 70 133 68 Q130 63 132 54" stroke="${skinM}" stroke-width="0.8" fill="none" opacity="0.4"/>
+      <!-- Nose bridge highlight -->
+      <path d="M129 55 L129 62" stroke="${skinL}" stroke-width="0.8" fill="none" opacity="0.15"/>
+      <!-- Nostrils -->
+      <ellipse cx="127" cy="68" rx="2" ry="1.2" fill="${skinM}" opacity="0.15"/>
+      <ellipse cx="133" cy="68" rx="2" ry="1.2" fill="${skinM}" opacity="0.15"/>
+
+      <!-- Mouth / Jaw -->
+      ${jawClench > 0.1 ? `
+        <!-- JAW CLENCHING: masseter muscles bulge, teeth visible, mouth tight -->
+        <!-- Masseter muscle bulge on both sides of jaw -->
+        <ellipse cx="104" cy="72" rx="${3 + jawClench*4}" ry="${2 + jawClench*3}" fill="${skinM}" opacity="${jawClench*0.35}"/>
+        <ellipse cx="156" cy="72" rx="${3 + jawClench*4}" ry="${2 + jawClench*3}" fill="${skinM}" opacity="${jawClench*0.35}"/>
+        <!-- Jaw tension lines -->
+        <path d="M104 68 Q106 72 104 76" stroke="${skinD}" stroke-width="${0.3 + jawClench*0.6}" fill="none" opacity="${jawClench*0.3}"/>
+        <path d="M156 68 Q154 72 156 76" stroke="${skinD}" stroke-width="${0.3 + jawClench*0.6}" fill="none" opacity="${jawClench*0.3}"/>
+        <!-- Clenched mouth — tight horizontal line -->
+        <path d="M118 77 L142 77" stroke="${skinD}" stroke-width="${1.0 + jawClench*0.8}" fill="none" opacity="${0.3 + jawClench*0.4}"/>
+        <!-- Upper teeth row visible through tight lips -->
+        <rect x="119" y="${77 - jawClench*2.5}" width="22" height="${jawClench*3}" rx="1" fill="white" opacity="${jawClench*0.6}"/>
+        <!-- Lower teeth row -->
+        <rect x="119" y="77" width="22" height="${jawClench*2.5}" rx="1" fill="#f0f0f0" opacity="${jawClench*0.5}"/>
+        <!-- Individual tooth lines -->
+        ${jawClench > 0.4 ? `
+          <line x1="123" y1="${77 - jawClench*2}" x2="123" y2="${77 + jawClench*2}" stroke="${skinM}" stroke-width="0.3" opacity="${jawClench*0.35}"/>
+          <line x1="127" y1="${77 - jawClench*2}" x2="127" y2="${77 + jawClench*2}" stroke="${skinM}" stroke-width="0.3" opacity="${jawClench*0.35}"/>
+          <line x1="130" y1="${77 - jawClench*2}" x2="130" y2="${77 + jawClench*2}" stroke="${skinM}" stroke-width="0.3" opacity="${jawClench*0.35}"/>
+          <line x1="133" y1="${77 - jawClench*2}" x2="133" y2="${77 + jawClench*2}" stroke="${skinM}" stroke-width="0.3" opacity="${jawClench*0.35}"/>
+          <line x1="137" y1="${77 - jawClench*2}" x2="137" y2="${77 + jawClench*2}" stroke="${skinM}" stroke-width="0.3" opacity="${jawClench*0.35}"/>
+        ` : ''}
+        <!-- Lip compression lines -->
+        <path d="M120 ${76 - jawClench*1} Q130 ${75 - jawClench*1.5} 140 ${76 - jawClench*1}" stroke="${skinM}" stroke-width="0.4" fill="none" opacity="${jawClench*0.3}"/>
+        <path d="M120 ${78 + jawClench*1} Q130 ${79 + jawClench*1.5} 140 ${78 + jawClench*1}" stroke="${skinM}" stroke-width="0.4" fill="none" opacity="${jawClench*0.3}"/>
+        <!-- Chin dimple from tension -->
+        <ellipse cx="130" cy="${83 + jawClench*1}" rx="3" ry="${1 + jawClench}" fill="${skinM}" opacity="${jawClench*0.15}"/>
+      ` : isAbsence && absenceMouth > 0.1 ? `
+        <!-- ABSENCE: Mouth goes slightly slack/open — vacant expression -->
+        <!-- Slightly open mouth — jaw drops a bit -->
+        <ellipse cx="130" cy="${78 + absenceMouth*2}" rx="${6 + absenceMouth*2}" ry="${1.5 + absenceMouth*2.5}" fill="#2a1a1a" opacity="${0.15 + absenceMouth*0.2}"/>
+        <!-- Upper lip -->
+        <path d="M121 ${77 + absenceMouth*0.5} Q126 ${76} 130 ${76} Q134 ${76} 139 ${77 + absenceMouth*0.5}" stroke="${skinM}" stroke-width="1" fill="none" opacity="0.4"/>
+        <!-- Lower lip slightly dropped -->
+        <path d="M123 ${79 + absenceMouth*3} Q130 ${81 + absenceMouth*3.5} 137 ${79 + absenceMouth*3}" stroke="${skinM}" stroke-width="0.8" fill="none" opacity="0.3"/>
+        <!-- Drool-line shadow inside mouth -->
+        <ellipse cx="130" cy="${78 + absenceMouth*2}" rx="${4 + absenceMouth*1}" ry="${0.5 + absenceMouth*1.2}" fill="#1a0a0a" opacity="${absenceMouth*0.1}"/>
+      ` : `
+        <!-- Normal relaxed mouth -->
+        <path d="M120 76 Q125 80 130 80 Q135 80 140 76" stroke="${skinM}" stroke-width="1.2" fill="none" opacity="0.4"/>
+        <!-- Lower lip highlight -->
+        <path d="M123 80 Q130 83 137 80" stroke="${skinL}" stroke-width="0.5" fill="none" opacity="0.15"/>
+      `}
+      
+      <!-- Philtrum -->
+      <path d="M128.5 70 L128 75" stroke="${skinM}" stroke-width="0.3" fill="none" opacity="0.1"/>
+      <path d="M131.5 70 L132 75" stroke="${skinM}" stroke-width="0.3" fill="none" opacity="0.1"/>
+
+      ${hlOv("M96 15 Q130 4 164 15 L165 58 Q165 96 130 98 Q95 96 95 58 Z","head")}
+    </g>
+  `;
+}
+
+function drawEEG(id, isPlaying, el, color) {
+  const c = document.getElementById("eegCanvas");
+  const ctx = c.getContext("2d");
+  ctx.clearRect(0,0,300,44);
+  ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.globalAlpha=0.8;
+  const tm = el*0.001;
+  for(let x=0;x<300;x++){
+    let y=22;
+    if(!isPlaying){y=22+Math.sin(x*0.05+tm)*2;}
+    else switch(id){
+      case "tonic-clonic":case "tonic":case "unknown-tc":y=22+Math.sin(x*0.15+tm*8)*13+Math.sin(x*0.3+tm*12)*5;break;
+      case "clonic":y=22+Math.sin(x*0.12+tm*6)*11+Math.cos(x*0.2+tm*9)*5;break;
+      case "myoclonic":y=22+Math.sin(x*0.2+tm*15)*8*(Math.sin(tm*5)>0.7?2:0.5);break;
+      case "absence":y=22+Math.sin(x*0.1+tm*3)*7*Math.sin(x*0.05);break;
+      case "atypical-absence":y=22+Math.sin(x*0.065+tm*2)*9*Math.sin(x*0.04);break;
+      case "myoclonic-absence":y=22+Math.sin(x*0.1+tm*3)*7*Math.sin(x*0.05)+Math.sin(x*0.3+tm*10)*4*(Math.sin(tm*3)>0.3?1:0.2);break;
+      case "eyelid-myoclonia":y=22+Math.sin(x*0.12+tm*4)*6+Math.sin(x*0.35+tm*14)*5*(Math.sin(tm*6)>0.4?1.5:0.3);break;
+      case "focal":case "focal-impaired":case "focal-nonmotor":y=22+(x>150?Math.sin(x*0.15+tm*7)*11+(Math.random()-0.5)*3:Math.sin(x*0.05+tm)*2);break;
+      case "unknown-spasms":case "spasms":y=22+Math.sin(x*0.15+tm*7)*11+(Math.random()-0.5)*4;break;
+      case "unknown-arrest":y=22+Math.sin(x*0.08+tm*2)*5+(Math.random()-0.5)*2;break;
+      default:y=22+Math.sin(x*0.15+tm*7)*11+(Math.random()-0.5)*4;
+    }
+    x===0?ctx.moveTo(x,Math.max(2,Math.min(42,y))):ctx.lineTo(x,Math.max(2,Math.min(42,y)));
+  }
+  ctx.stroke();
+}
+
+// Init
+render();
+updateUI();
+</script>
+</body>
+</html>
