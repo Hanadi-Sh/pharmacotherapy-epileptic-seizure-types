@@ -1,23 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Epileptic Seizure Types — Interactive Demo</title>
+<title>Epileptic Seizure Types, Interactive Demo</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#f8f9fb; font-family:'DM Sans',system-ui,sans-serif; color:#1e293b; }
+  body { background:#f8f9fb; font-family:Calibri, 'Segoe UI', Arial, sans-serif; color:#1e293b; }
   .wrap { max-width:960px; margin:0 auto; padding:28px 16px; }
   .title { text-align:center; margin-bottom:22px; }
-  .title h1 { font-size:24px; font-weight:800; color:#0f172a; letter-spacing:-0.5px; }
-  .title p { color:#94a3b8; font-size:13px; margin-top:4px; font-weight:300; }
+  .title h1 { font-size:27px; font-weight:800; color:#0f172a; letter-spacing:-0.5px; }
+  .title p { color:#94a3b8; font-size:14.625px; margin-top:4px; font-weight:300; }
   .pills { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
   .cat-group { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
-  .cat-label { font-size:10px; font-weight:800; letter-spacing:1px; padding:3px 10px; border-radius:8px; 
+  .cat-label { font-size:11.25px; font-weight:800; letter-spacing:1px; padding:3px 10px; border-radius:8px; 
     margin-right:4px; white-space:nowrap; }
   .pill { padding:5px 12px; border-radius:20px; border:1.5px solid #e2e8f0; background:#fff;
-    color:#64748b; font-size:11px; font-weight:500; cursor:pointer; transition:all 0.25s; font-family:inherit;
+    color:#64748b; font-size:12.375px; font-weight:500; cursor:pointer; transition:all 0.25s; font-family:inherit;
     box-shadow:0 1px 2px rgba(0,0,0,0.04); }
   .pill:hover { border-color:#cbd5e1; background:#f8fafc; }
   .pill.on { font-weight:700; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
@@ -27,50 +26,50 @@
   .fig-box::before { content:''; position:absolute; top:0; left:0; right:0; height:120px;
     background:linear-gradient(180deg, #f1f5f9 0%, transparent 100%); opacity:0.5; pointer-events:none; }
   .info { flex:1; min-width:260px; display:flex; flex-direction:column; gap:14px; }
-  .cat-badge { align-self:flex-start; padding:4px 14px; border-radius:14px; font-size:11px;
+  .cat-badge { align-self:flex-start; padding:4px 14px; border-radius:14px; font-size:12.375px;
     font-weight:700; letter-spacing:0.5px; }
-  .info h2 { font-size:26px; font-weight:800; color:#0f172a; letter-spacing:-0.5px; }
-  .info .desc { font-size:14px; line-height:1.7; color:#64748b; }
+  .info h2 { font-size:29.25px; font-weight:800; color:#0f172a; letter-spacing:-0.5px; }
+  .info .desc { font-size:15.75px; line-height:1.7; color:#64748b; }
   .ctrl-box { background:#fff; border-radius:14px; padding:16px; border:1px solid #e2e8f0; box-shadow:0 2px 8px rgba(0,0,0,0.03); }
   .prog-bar { width:100%; height:5px; background:#e2e8f0; border-radius:3px; overflow:hidden; }
   .prog-fill { height:100%; border-radius:3px; transition:width 0.05s linear; }
   .btns { display:flex; gap:10px; margin-top:12px; }
   .play-btn { flex:1; padding:10px 0; border-radius:10px; border:none; color:#fff;
-    font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:filter 0.2s; }
+    font-size:15.75px; font-weight:700; cursor:pointer; font-family:inherit; transition:filter 0.2s; }
   .play-btn:hover { filter:brightness(1.1); }
   .replay-btn { padding:10px 16px; border-radius:10px; border:1px solid #e2e8f0;
-    background:#fff; color:#64748b; font-size:14px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+    background:#fff; color:#64748b; font-size:15.75px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
   .replay-btn:hover { background:#f8fafc; border-color:#cbd5e1; }
-  .time-label { margin-top:6px; font-size:12px; color:#94a3b8; text-align:center; font-weight:300; }
+  .time-label { margin-top:6px; font-size:13.5px; color:#94a3b8; text-align:center; font-weight:300; }
   
   /* Speed control */
   .speed-row { display:flex; align-items:center; gap:8px; margin-top:10px; justify-content:center; }
-  .speed-label { font-size:11px; font-weight:700; color:#94a3b8; letter-spacing:0.8px; }
+  .speed-label { font-size:12.375px; font-weight:700; color:#94a3b8; letter-spacing:0.8px; }
   .speed-btns { display:flex; gap:4px; }
   .spd-btn { padding:4px 10px; border-radius:8px; border:1.5px solid #e2e8f0; background:#fff;
-    color:#64748b; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+    color:#64748b; font-size:12.375px; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.2s; }
   .spd-btn.active { background:#0f172a; color:#fff; border-color:#0f172a; }
   .spd-btn:hover:not(.active) { background:#f1f5f9; }
   
   .eeg-box { background:#fff; border-radius:14px; padding:14px; border:1px solid #e2e8f0; box-shadow:0 2px 8px rgba(0,0,0,0.03); }
-  .eeg-title { font-size:11px; font-weight:700; color:#94a3b8; letter-spacing:1px; margin-bottom:4px; }
-  .eeg-desc { font-size:13px; color:#64748b; line-height:1.5; margin-bottom:8px; }
+  .eeg-title { font-size:12.375px; font-weight:700; color:#94a3b8; letter-spacing:1px; margin-bottom:4px; }
+  .eeg-desc { font-size:14.625px; color:#64748b; line-height:1.5; margin-bottom:8px; }
   .tip-box { background:#fffbeb; border-radius:14px; padding:14px; border:1px solid #fde68a;
-    font-size:13px; color:#92400e; line-height:1.6; }
+    font-size:14.625px; color:#92400e; line-height:1.6; }
   .hl-label { margin-top:8px; text-align:center; background:#f1f5f9; border-radius:10px;
-    padding:7px 14px; font-size:12px; font-weight:600; color:#475569; display:none; }
+    padding:7px 14px; font-size:13.5px; font-weight:600; color:#475569; display:none; }
   .phase-tag { position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:20;
-    color:#fff; padding:4px 18px; border-radius:20px; font-size:11px; font-weight:700;
+    color:#fff; padding:4px 18px; border-radius:20px; font-size:12.375px; font-weight:700;
     letter-spacing:0.8px; white-space:nowrap; display:none; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
-  .footer { text-align:center; margin-top:28px; font-size:11px; color:#cbd5e1; font-weight:300; }
+  .footer { text-align:center; margin-top:28px; font-size:12.375px; color:#cbd5e1; font-weight:300; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:12px;">Dr. Hanadi Al Shaker</div>
+  <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:12px;">Dr. Hanadi Al Shaker</div>
   <div class="title">
     <h1>Epileptic Seizure Types</h1>
-    <p>Interactive muscle movement demonstration — Focal, Generalised & Unknown-Onset types</p>
+    <p>Interactive muscle movement demonstration, Focal, Generalised & Unknown-Onset types</p>
   </div>
   <div class="pills" id="pills"></div>
   <div class="main">
@@ -109,7 +108,7 @@
       <div class="tip-box" id="tipBox"></div>
     </div>
   </div>
-  <div class="footer">For educational purposes only — animations are simplified representations</div>
+  <div class="footer">For educational purposes only, animations are simplified representations</div>
 </div>
 
 <script>
@@ -122,34 +121,34 @@ const SZ = [
     dur:4500, tip:"Can cause falls if standing. Often occurs during sleep. Arms extend rigidly outward from the body." },
   { id:"clonic", label:"Clonic", cat:"Motor Generalised",
     desc:"Rhythmic bilateral jerking of all limbs. Frequency starts fast then gradually slows (decrescendo pattern). No preceding stiffening phase.",
-    dur:4500, tip:"Rare in isolation — more common as part of a tonic-clonic sequence. Jerking decelerates over time." },
+    dur:4500, tip:"Rare in isolation, more common as part of a tonic-clonic sequence. Jerking decelerates over time." },
   { id:"myoclonic", label:"Myoclonic", cat:"Motor Generalised",
     desc:"Very brief (<100ms) arrhythmic, shock-like jerks predominantly affecting shoulders and arms. The jerk throws the arms outward/upward suddenly.",
     dur:3500, tip:"So brief it can be mistaken for clumsiness. Often occurs after waking. Can cause objects to be flung from hands." },
   { id:"atonic", label:"Atonic", cat:"Motor Generalised",
-    desc:"Sudden complete loss of all muscle tone. Head drops first, then knees buckle, then full collapse — known as 'drop attacks'. Like a puppet with cut strings.",
+    desc:"Sudden complete loss of all muscle tone. Head drops first, then knees buckle, then full collapse, known as 'drop attacks'. Like a puppet with cut strings.",
     dur:3500, tip:"High injury risk from sudden unbraced falls. Patients may wear protective helmets. Recovery is rapid." },
   { id:"spasms", label:"Epileptic Spasms", cat:"Motor Generalised",
-    desc:"Sudden flexion of trunk and arms in a jackknife pattern — head drops forward, trunk curls, arms abduct then flex inward. Occurs in clusters.",
+    desc:"Sudden flexion of trunk and arms in a jackknife pattern, head drops forward, trunk curls, arms abduct then flex inward. Occurs in clusters.",
     dur:4000, tip:"Most common in the first year of life. Clusters of 10-40 spasms are typical. Associated with West syndrome." },
   { id:"absence", label:"Absence", cat:"Nonmotor Generalised",
     desc:"Sudden arrest of behaviour. Patient stares blankly with brief upward rotation of the eyes, lasting 2 to 30 seconds. May have subtle eyelid fluttering and slight head nodding. No fall, no postictal confusion.",
     dur:4000, tip:"Often mistaken for daydreaming. No fall or convulsion occurs. Returns to previous activity immediately as if nothing happened." },
   { id:"focal", label:"Focal Aware", cat:"Focal",
     desc:"Seizure activity confined to one brain region. One arm or hand jerks rhythmically while the rest of the body remains completely normal. Patient stays fully conscious.",
-    dur:4000, tip:"Patient remains fully aware and can describe the experience. May show Jacksonian march — jerking spreads proximally." },
+    dur:4000, tip:"Patient remains fully aware and can describe the experience. May show Jacksonian march, jerking spreads proximally." },
   { id:"focal-btc", label:"Focal → Bilateral", cat:"Focal",
-    desc:"Begins as focal seizure (one arm jerking), then electrical activity spreads across the corpus callosum to the other hemisphere — becoming a full bilateral tonic-clonic.",
+    desc:"Begins as focal seizure (one arm jerking), then electrical activity spreads across the corpus callosum to the other hemisphere, becoming a full bilateral tonic-clonic.",
     dur:8000, tip:"Treatment targets the focal origin. Transition phase shows progressive bilateral involvement before full tonic-clonic." },
   { id:"focal-impaired", label:"Focal Impaired Awareness", cat:"Focal",
-    desc:"Seizure originates in a localised brain region but impairs consciousness. Patient appears confused, stares, and exhibits automatisms — automatic behaviours such as lip smacking, chewing, or picking at clothing. After the event, may not recall actions.",
+    desc:"Seizure originates in a localised brain region but impairs consciousness. Patient appears confused, stares, and exhibits automatisms, automatic behaviours such as lip smacking, chewing, or picking at clothing. After the event, may not recall actions.",
     dur:5500, tip:"Most common type of focal seizure. Patient has no memory of the event. Automatisms are the hallmark clinical feature. Often originates in the temporal lobe." },
   { id:"focal-nonmotor", label:"Focal Nonmotor", cat:"Focal",
     desc:"Focal seizure without prominent motor activity. Patient may experience autonomic changes (flushing, sweating, piloerection, salivation, pallor), behaviour arrest (pausing, freezing mid-activity), cognitive symptoms (language problems, thinking problems, feelings of familiarity [déjà vu] or unfamiliarity [jamais vu]), emotional symptoms (sudden fear, depression, joy, anger), or sensory phenomena (numbness, tingling, ringing/buzzing sounds, smells, tastes, visual hallucinations, vertigo).",
     dur:4500, tip:"Can be subtle and easily missed. Includes autonomic, behaviour arrest, cognitive, emotional, and sensory subtypes. Patient remains aware in this demonstration." },
   { id:"atypical-absence", label:"Atypical Absence", cat:"Nonmotor Generalised",
     desc:"Similar to typical absence but with more gradual onset and offset. May include subtle motor features like mild head nodding, slight body slumping, and more pronounced loss of tone. Episodes last longer than typical absence.",
-    dur:5000, tip:"More gradual than typical absence — harder to identify exact start/end. Often seen in Lennox-Gastaut syndrome. Associated with slow spike-wave on EEG (~1.5-2.5 Hz)." },
+    dur:5000, tip:"More gradual than typical absence, harder to identify exact start/end. Often seen in Lennox-Gastaut syndrome. Associated with slow spike-wave on EEG (~1.5-2.5 Hz)." },
   { id:"myoclonic-absence", label:"Myoclonic Absence", cat:"Nonmotor Generalised",
     desc:"Combines the unresponsive stare of an absence seizure with rhythmic myoclonic jerks of the shoulders and arms. Arms elevate gradually with each jerk while the patient remains unresponsive.",
     dur:5000, tip:"Rare subtype. Rhythmic arm jerks are time-locked to the 3 Hz spike-wave discharges on EEG. Arms abduct and elevate progressively. May be treatment-resistant." },
@@ -157,13 +156,13 @@ const SZ = [
     desc:"Rapid, rhythmic jerking of the eyelids, often with upward deviation of the eyes and brief head extension. Typically triggered by eye closure or photic stimulation. Awareness may or may not be impaired.",
     dur:4000, tip:"Hallmark of Jeavons syndrome. Characteristically provoked by eye closure. EEG shows generalised polyspike-and-wave discharges. Very photosensitive." },
   { id:"unknown-tc", label:"Unknown Tonic-Clonic", cat:"Unknown Onset",
-    desc:"A tonic-clonic seizure where the onset — focal or generalised — could not be determined. This may be because the event was unwitnessed, EEG was not recorded, or clinical features were ambiguous.",
+    desc:"A tonic-clonic seizure where the onset, focal or generalised, could not be determined. This may be because the event was unwitnessed, EEG was not recorded, or clinical features were ambiguous.",
     dur:6000, tip:"May be reclassified as focal or generalised once more data is available (e.g. video-EEG monitoring). Treatment decisions are guided by the best available clinical evidence." },
   { id:"unknown-spasms", label:"Unknown Epileptic Spasms", cat:"Unknown Onset",
     desc:"Epileptic spasms where the onset type is undetermined. Sudden flexion or extension of the body occurring in clusters, but insufficient data to classify as focal or generalised in origin.",
     dur:4000, tip:"Further investigation with video-EEG may clarify the onset. Spasms may be reclassified once the underlying aetiology is better understood." },
   { id:"unknown-arrest", label:"Unknown Behaviour Arrest", cat:"Unknown Onset",
-    desc:"Sudden cessation of all activity — the patient freezes mid-action and becomes unresponsive. Onset type (focal or generalised) cannot be determined from available clinical information.",
+    desc:"Sudden cessation of all activity, the patient freezes mid-action and becomes unresponsive. Onset type (focal or generalised) cannot be determined from available clinical information.",
     dur:4000, tip:"May resemble absence or focal behaviour arrest. Classification may change with further EEG monitoring or clinical data." },
 ];
 
@@ -244,7 +243,7 @@ function updateUI() {
     p.style.color = on?c:"#64748b";
   });
   document.getElementById("catBadge").textContent = sz.cat.toUpperCase();
-  document.getElementById("catBadge").style.cssText = `align-self:flex-start;padding:4px 14px;border-radius:14px;font-size:11px;font-weight:700;letter-spacing:0.5px;background:${cc}10;color:${cc};border:1.5px solid ${cc}30;`;
+  document.getElementById("catBadge").style.cssText = `align-self:flex-start;padding:4px 14px;border-radius:14px;font-size:12.375px;font-weight:700;letter-spacing:0.5px;background:${cc}10;color:${cc};border:1.5px solid ${cc}30;`;
   document.getElementById("szTitle").textContent = sz.label;
   document.getElementById("szDesc").textContent = sz.desc;
   document.getElementById("progFill").style.width = (prog*100)+"%";
@@ -253,7 +252,7 @@ function updateUI() {
   pb.style.background = cc;
   pb.textContent = playing?"⏸  Pause":elapsed>=sz.dur?"▶  Replay":"▶  Play";
   document.getElementById("timeLabel").textContent = (elapsed/1000).toFixed(1)+"s / "+(sz.dur/1000).toFixed(1)+"s";
-  document.getElementById("eegDesc").textContent = sz.cat.includes("Generalised")?"Bilateral synchronous discharge — both hemispheres":sz.cat==="Unknown Onset"?"Onset type undetermined — insufficient data to classify":sz.cat==="Focal"?"Focal onset — localised brain region":"Focal onset — localised brain region";
+  document.getElementById("eegDesc").textContent = sz.cat.includes("Generalised")?"Bilateral synchronous discharge, both hemispheres":sz.cat==="Unknown Onset"?"Onset type undetermined, insufficient data to classify":sz.cat==="Focal"?"Focal onset, localised brain region":"Focal onset, localised brain region";
   document.getElementById("tipBox").innerHTML = "<strong>Key point: </strong>"+sz.tip;
   
   const hl = playing ? getHL(sz.id, prog) : null;
@@ -267,23 +266,23 @@ function updateUI() {
 function getHL(id, p) {
   const all=["head","torso","lArm","rArm","lLeg","rLeg"];
   switch(id) {
-    case "tonic-clonic": return p<0.35?{p:all,c:"#ef4444",l:"TONIC — Arms extending rigid & outward, back arching, jaw clenching",ph:"TONIC PHASE",pc:"#dc2626"}:p<0.4?{p:all,c:"#f59e0b",l:"TRANSITION — Stiffness breaking into tremor",ph:"TRANSITION",pc:"#d97706"}:{p:all,c:"#eab308",l:"CLONIC — Bilateral rhythmic jerking, gradually slowing",ph:"CLONIC PHASE",pc:"#ca8a04"};
-    case "tonic": return {p:all,c:"#ef4444",l:"All muscles — arms rigid outward, back arched, jaw clenched"};
-    case "clonic": return {p:all,c:"#eab308",l:"All muscles — bilateral rhythmic jerking (decrescendo)"};
-    case "myoclonic": return {p:["lArm","rArm","torso","head"],c:"#8b5cf6",l:"Shoulders & arms — lightning-fast shock jerks"};
-    case "atonic": return p<0.2?{p:all,c:"#6366f1",l:"All tone lost — body beginning to drop",ph:"DROP ATTACK",pc:"#4f46e5"}:{p:all,c:"#6366f1",l:"Complete collapse — falling to ground",ph:"COLLAPSE",pc:"#4338ca"};
-    case "spasms": return {p:["torso","lArm","rArm","head"],c:"#ec4899",l:"Flexor spasm — trunk curling, arms abducting"};
-    case "absence": return {p:["head"],c:"#94a3b8",l:"Behaviour arrest — blank stare, upward eye rotation, subtle lid flutter"};
-    case "focal": return {p:["rArm"],c:"#06b6d4",l:"Right arm only — rhythmic localised jerking"};
-    case "focal-btc": return p<0.3?{p:["rArm"],c:"#06b6d4",l:"Focal — right arm rhythmic jerking",ph:"FOCAL ONSET",pc:"#0891b2"}:p<0.45?{p:["rArm","torso","head"],c:"#f59e0b",l:"Spreading — activity reaching midline",ph:"SPREADING",pc:"#d97706"}:p<0.55?{p:all,c:"#ef4444",l:"Bilateral tonic — whole-body stiffening",ph:"BILATERAL TONIC",pc:"#dc2626"}:{p:all,c:"#eab308",l:"Bilateral clonic — rhythmic bilateral jerking",ph:"BILATERAL CLONIC",pc:"#ca8a04"};
-    case "focal-impaired": return {p:["head","lArm","torso"],c:"#0891b2",l:"Impaired awareness — automatisms (lip smacking, chewing, picking at clothing)",ph:"AUTOMATISMS",pc:"#0891b2"};
-    case "focal-nonmotor": return {p:["head","torso"],c:"#06b6d4",l:"Behaviour arrest — pausing, freezing, autonomic changes (flushing, sweating, piloerection, salivation, pallor)"};
-    case "atypical-absence": return {p:["head","torso","lArm","rArm"],c:"#94a3b8",l:"Atypical absence — gradual onset, subtle tone loss, slumping",ph:"ATYPICAL ABSENCE",pc:"#64748b"};
-    case "myoclonic-absence": return {p:["head","lArm","rArm"],c:"#94a3b8",l:"Myoclonic absence — rhythmic arm jerks with staring",ph:"MYOCLONIC JERKS",pc:"#64748b"};
-    case "eyelid-myoclonia": return {p:["head"],c:"#94a3b8",l:"Eyelid myoclonia — rapid eyelid jerks, head extension",ph:"EYELID JERKS",pc:"#64748b"};
-    case "unknown-tc": return p<0.35?{p:all,c:"#8b5cf6",l:"TONIC — whole-body stiffening (onset unknown)",ph:"TONIC PHASE",pc:"#7c3aed"}:p<0.42?{p:all,c:"#f59e0b",l:"TRANSITION",ph:"TRANSITION",pc:"#d97706"}:{p:all,c:"#a78bfa",l:"CLONIC — bilateral rhythmic jerking (onset unknown)",ph:"CLONIC PHASE",pc:"#7c3aed"};
-    case "unknown-spasms": return {p:["torso","lArm","rArm","head"],c:"#8b5cf6",l:"Flexor spasm — trunk curling, arms abducting (onset unknown)"};
-    case "unknown-arrest": return {p:["head"],c:"#8b5cf6",l:"Behaviour arrest — frozen, unresponsive (onset unknown)"};
+    case "tonic-clonic": return p<0.35?{p:all,c:"#ef4444",l:"TONIC, Arms extending rigid & outward, back arching, jaw clenching",ph:"TONIC PHASE",pc:"#dc2626"}:p<0.4?{p:all,c:"#f59e0b",l:"TRANSITION, Stiffness breaking into tremor",ph:"TRANSITION",pc:"#d97706"}:{p:all,c:"#eab308",l:"CLONIC, Bilateral rhythmic jerking, gradually slowing",ph:"CLONIC PHASE",pc:"#ca8a04"};
+    case "tonic": return {p:all,c:"#ef4444",l:"All muscles, arms rigid outward, back arched, jaw clenched"};
+    case "clonic": return {p:all,c:"#eab308",l:"All muscles, bilateral rhythmic jerking (decrescendo)"};
+    case "myoclonic": return {p:["lArm","rArm","torso","head"],c:"#8b5cf6",l:"Shoulders & arms, lightning-fast shock jerks"};
+    case "atonic": return p<0.2?{p:all,c:"#6366f1",l:"All tone lost, body beginning to drop",ph:"DROP ATTACK",pc:"#4f46e5"}:{p:all,c:"#6366f1",l:"Complete collapse, falling to ground",ph:"COLLAPSE",pc:"#4338ca"};
+    case "spasms": return {p:["torso","lArm","rArm","head"],c:"#ec4899",l:"Flexor spasm, trunk curling, arms abducting"};
+    case "absence": return {p:["head"],c:"#94a3b8",l:"Behaviour arrest, blank stare, upward eye rotation, subtle lid flutter"};
+    case "focal": return {p:["rArm"],c:"#06b6d4",l:"Right arm only, rhythmic localised jerking"};
+    case "focal-btc": return p<0.3?{p:["rArm"],c:"#06b6d4",l:"Focal, right arm rhythmic jerking",ph:"FOCAL ONSET",pc:"#0891b2"}:p<0.45?{p:["rArm","torso","head"],c:"#f59e0b",l:"Spreading, activity reaching midline",ph:"SPREADING",pc:"#d97706"}:p<0.55?{p:all,c:"#ef4444",l:"Bilateral tonic, whole-body stiffening",ph:"BILATERAL TONIC",pc:"#dc2626"}:{p:all,c:"#eab308",l:"Bilateral clonic, rhythmic bilateral jerking",ph:"BILATERAL CLONIC",pc:"#ca8a04"};
+    case "focal-impaired": return {p:["head","lArm","torso"],c:"#0891b2",l:"Impaired awareness, automatisms (lip smacking, chewing, picking at clothing)",ph:"AUTOMATISMS",pc:"#0891b2"};
+    case "focal-nonmotor": return {p:["head","torso"],c:"#06b6d4",l:"Behaviour arrest, pausing, freezing, autonomic changes (flushing, sweating, piloerection, salivation, pallor)"};
+    case "atypical-absence": return {p:["head","torso","lArm","rArm"],c:"#94a3b8",l:"Atypical absence, gradual onset, subtle tone loss, slumping",ph:"ATYPICAL ABSENCE",pc:"#64748b"};
+    case "myoclonic-absence": return {p:["head","lArm","rArm"],c:"#94a3b8",l:"Myoclonic absence, rhythmic arm jerks with staring",ph:"MYOCLONIC JERKS",pc:"#64748b"};
+    case "eyelid-myoclonia": return {p:["head"],c:"#94a3b8",l:"Eyelid myoclonia, rapid eyelid jerks, head extension",ph:"EYELID JERKS",pc:"#64748b"};
+    case "unknown-tc": return p<0.35?{p:all,c:"#8b5cf6",l:"TONIC, whole-body stiffening (onset unknown)",ph:"TONIC PHASE",pc:"#7c3aed"}:p<0.42?{p:all,c:"#f59e0b",l:"TRANSITION",ph:"TRANSITION",pc:"#d97706"}:{p:all,c:"#a78bfa",l:"CLONIC, bilateral rhythmic jerking (onset unknown)",ph:"CLONIC PHASE",pc:"#7c3aed"};
+    case "unknown-spasms": return {p:["torso","lArm","rArm","head"],c:"#8b5cf6",l:"Flexor spasm, trunk curling, arms abducting (onset unknown)"};
+    case "unknown-arrest": return {p:["head"],c:"#8b5cf6",l:"Behaviour arrest, frozen, unresponsive (onset unknown)"};
     default: return {p:[],c:"",l:""};
   }
 }
@@ -292,7 +291,7 @@ function getHL(id, p) {
 /* IMPORTANT: Arms pivot around shoulder joints via ROTATION ONLY.
    Left arm pivot: (82, 112). Negative r = swing outward/left. 
    Right arm pivot: (178, 112). Positive r = swing outward/right.
-   NEVER use large ty on arms — it shifts the drawn-hanging-arm onto the head!
+   NEVER use large ty on arms, it shifts the drawn-hanging-arm onto the head!
    
    Clinical tonic posture: arms ABDUCT OUTWARD from body, rigid and extended.
    ~50-70° rotation = arms extend horizontally outward. 
@@ -388,7 +387,7 @@ function getAnim(id, t, dur) {
       };
     }
 
-    /* MYOCLONIC: Brief shock-like jerks — arms flung OUTWARD suddenly.
+    /* MYOCLONIC: Brief shock-like jerks, arms flung OUTWARD suddenly.
        LEFT ARM OUTWARD = positive r.  RIGHT ARM OUTWARD = negative r. */
     case "myoclonic": {
       const cycle = (t % 900) / 900;
@@ -425,7 +424,7 @@ function getAnim(id, t, dur) {
       };
     }
 
-    /* EPILEPTIC SPASMS: Flexor spasm — trunk curls, arms abduct OUTWARD */
+    /* EPILEPTIC SPASMS: Flexor spasm, trunk curls, arms abduct OUTWARD */
     case "spasms": {
       const cycle = (t % 1200) / 1200;
       let f = 0;
@@ -543,7 +542,7 @@ function getAnim(id, t, dur) {
       };
     }
 
-    /* FOCAL NONMOTOR: Behaviour arrest — patient freezes, subtle autonomic signs */
+    /* FOCAL NONMOTOR: Behaviour arrest, patient freezes, subtle autonomic signs */
     case "focal-nonmotor": {
       const freeze = Math.min(p * 4, 1);
       const subtle = Math.sin(t * 0.004) * 1.5 * freeze;
@@ -821,13 +820,13 @@ function render() {
 
     <!-- TORSO -->
     <g style="transform-origin:130px 150px;transform:${tf(a.torso)};filter:${glow('torso')}" filter="url(#bodyShadow)">
-      <!-- Shoulder bridges — fill gaps between torso and arms -->
+      <!-- Shoulder bridges, fill gaps between torso and arms -->
       <ellipse cx="82" cy="112" rx="14" ry="10" fill="${skin}"/>
       <ellipse cx="178" cy="112" rx="14" ry="10" fill="${skin}"/>
       <!-- Main torso with 3D gradient -->
       <path d="M82 110 Q88 104 130 102 Q172 104 178 110 L182 132 Q180 155 178 185 L176 225 Q173 262 171 298 L89 298 Q87 262 84 225 L82 185 Q80 155 78 132 Z" fill="url(#chestGrad)"/>
       
-      <!-- Chest muscle definition — pectorals -->
+      <!-- Chest muscle definition, pectorals -->
       <path d="M95 118 Q110 132 128 128" stroke="${skinM}" stroke-width="0.9" fill="none" opacity="0.25"/>
       <path d="M165 118 Q150 132 132 128" stroke="${skinM}" stroke-width="0.9" fill="none" opacity="0.25"/>
       <!-- Pec shadow -->
@@ -850,7 +849,7 @@ function render() {
         const pulse2R = 14 + ((elapsed + 275) % 550) / 550 * 18;
         const pulse2Op = Math.max(0, 0.2 - ((elapsed + 275) % 550) / 550 * 0.2);
         return `
-      <!-- ANATOMICAL HEART — JS-driven pumping (patient's LEFT chest) -->
+      <!-- ANATOMICAL HEART, JS-driven pumping (patient's LEFT chest) -->
       <g transform="translate(145, 162) scale(${sc})">
         <!-- Aorta arch -->
         <path d="M-1 -10 C-1 -16, 2 -19, 6 -19 C10 -19, 12 -16, 12 -12 L12 -7" 
@@ -867,7 +866,7 @@ function render() {
         <!-- Left atrium -->
         <path d="M10 -6 C13 -6, 15 -2, 14 2 L12 4 L8 2 L9 -2 C9 -4, 8 -5, 7 -5" 
           fill="${atrFillL}" stroke="#991b1b" stroke-width="0.4"/>
-        <!-- Main body — ventricles -->
+        <!-- Main body, ventricles -->
         <path d="M-11 4 C-13 8, -12 14, -8 18 C-4 22, 0 24, 1 24 C2 24, 6 22, 10 18 C14 14, 15 8, 12 4 L8 2 C5 3, 3 4, 1 4 C-1 4, -3 3, -6 2 Z" 
           fill="${mainFill}" stroke="#991b1b" stroke-width="0.5"/>
         <!-- Interventricular septum -->
@@ -911,7 +910,7 @@ function render() {
       <ellipse cx="130" cy="228" rx="3.5" ry="4.5" fill="${skinM}" opacity="0.35"/>
       <ellipse cx="130" cy="227" rx="2" ry="2.5" fill="${skinD}" opacity="0.15"/>
       
-      <!-- TROUSER SHORTS — straight bottom -->
+      <!-- TROUSER SHORTS, straight bottom -->
       <path d="M80 252 Q130 246 180 252 L180 308 L80 308 Z" fill="url(#shortsGrad)"/>
       <!-- Waistband with 3D -->
       <path d="M80 252 Q130 246 180 252 L180 266 Q130 260 80 266 Z" fill="${shortsB}"/>
@@ -1030,7 +1029,7 @@ function render() {
         <path d="M110 ${43 - Math.abs(Math.sin(elapsed * 0.03)) * 2} Q117 ${40 - Math.abs(Math.sin(elapsed * 0.03)) * 2} 124 ${43 - Math.abs(Math.sin(elapsed * 0.03)) * 2}" stroke="${hair}" stroke-width="1.8" fill="none" opacity="0.5"/>
         <path d="M136 ${43 - Math.abs(Math.sin(elapsed * 0.032)) * 2} Q143 ${40 - Math.abs(Math.sin(elapsed * 0.032)) * 2} 150 ${43 - Math.abs(Math.sin(elapsed * 0.032)) * 2}" stroke="${hair}" stroke-width="1.8" fill="none" opacity="0.5"/>
       ` : isAbsence ? `
-        <!-- Absence: eyebrows relax/flatten — vacant expression -->
+        <!-- Absence: eyebrows relax/flatten, vacant expression -->
         <path d="M111 45 Q117 44 124 45" stroke="${hair}" stroke-width="1.6" fill="none" opacity="0.35"/>
         <path d="M136 45 Q143 44 149 45" stroke="${hair}" stroke-width="1.6" fill="none" opacity="0.35"/>
       ` : `
@@ -1048,7 +1047,7 @@ function render() {
         <circle cx="142" cy="${49 - eyelidMyoclonia * 2}" r="3.2" fill="#3B2506"/>
         <circle cx="118" cy="${49 - eyelidMyoclonia * 2}" r="1.8" fill="#1a1a1a"/>
         <circle cx="142" cy="${49 - eyelidMyoclonia * 2}" r="1.8" fill="#1a1a1a"/>
-        <!-- Rapid eyelid flutter — more intense than absence -->
+        <!-- Rapid eyelid flutter, more intense than absence -->
         <ellipse cx="118" cy="${47 + Math.sin(elapsed * 0.03) * 2 + (Math.sin(elapsed * 0.05) > 0.3 ? 4 : 0)}" 
           rx="7.5" ry="${3 + (Math.sin(elapsed * 0.05) > 0.3 ? 3 : 0)}" fill="${skin}" opacity="${0.4 + (Math.sin(elapsed * 0.05) > 0.3 ? 0.55 : 0)}"/>
         <ellipse cx="142" cy="${47 + Math.sin(elapsed * 0.032) * 2 + (Math.sin(elapsed * 0.048) > 0.3 ? 4 : 0)}" 
@@ -1058,7 +1057,7 @@ function render() {
         <path d="M136 ${46 + Math.sin(elapsed * 0.032) * 1.5} Q142 ${44 + Math.sin(elapsed * 0.032) * 2} 148 ${46 + Math.sin(elapsed * 0.032) * 1.5}" 
           stroke="${skinM}" stroke-width="0.8" fill="none" opacity="0.4"/>
       ` : isVacantStare ? `
-        <!-- VACANT STARE ONLY — no eyelid flutter, just glazed open eyes -->
+        <!-- VACANT STARE ONLY, no eyelid flutter, just glazed open eyes -->
         <ellipse cx="118" cy="51" rx="6.5" ry="5.5" fill="white"/>
         <ellipse cx="142" cy="51" rx="6.5" ry="5.5" fill="white"/>
         <!-- Glazed unfocused iris -->
@@ -1067,7 +1066,7 @@ function render() {
         <!-- Dilated pupils -->
         <circle cx="118" cy="51" r="2.2" fill="#1a1a1a" opacity="0.6"/>
         <circle cx="142" cy="51" r="2.2" fill="#1a1a1a" opacity="0.6"/>
-        <!-- Glazed sheen — no highlights, vacant look -->
+        <!-- Glazed sheen, no highlights, vacant look -->
         <ellipse cx="118" cy="50" rx="5" ry="3.5" fill="white" opacity="0.12"/>
         <ellipse cx="142" cy="50" rx="5" ry="3.5" fill="white" opacity="0.12"/>
         <!-- Static upper eyelid crease (no flutter) -->
@@ -1078,7 +1077,7 @@ function render() {
         <!-- Wide open eyes showing whites below iris -->
         <ellipse cx="118" cy="51" rx="6.5" ry="5.5" fill="white"/>
         <ellipse cx="142" cy="51" rx="6.5" ry="5.5" fill="white"/>
-        <!-- Iris rotated UPWARD — positioned higher in eye socket -->
+        <!-- Iris rotated UPWARD, positioned higher in eye socket -->
         <circle cx="118" cy="${47 + Math.sin(elapsed * 0.006) * 1}" r="3.8" fill="#6B5A3E" opacity="0.8"/>
         <circle cx="142" cy="${47 + Math.sin(elapsed * 0.006) * 1}" r="3.8" fill="#6B5A3E" opacity="0.8"/>
         <!-- Pupil also rotated upward -->
@@ -1137,7 +1136,7 @@ function render() {
         <!-- Jaw tension lines -->
         <path d="M104 68 Q106 72 104 76" stroke="${skinD}" stroke-width="${0.3 + jawClench*0.6}" fill="none" opacity="${jawClench*0.3}"/>
         <path d="M156 68 Q154 72 156 76" stroke="${skinD}" stroke-width="${0.3 + jawClench*0.6}" fill="none" opacity="${jawClench*0.3}"/>
-        <!-- Clenched mouth — tight horizontal line -->
+        <!-- Clenched mouth, tight horizontal line -->
         <path d="M118 77 L142 77" stroke="${skinD}" stroke-width="${1.0 + jawClench*0.8}" fill="none" opacity="${0.3 + jawClench*0.4}"/>
         <!-- Upper teeth row visible through tight lips -->
         <rect x="119" y="${77 - jawClench*2.5}" width="22" height="${jawClench*3}" rx="1" fill="white" opacity="${jawClench*0.6}"/>
@@ -1157,8 +1156,8 @@ function render() {
         <!-- Chin dimple from tension -->
         <ellipse cx="130" cy="${83 + jawClench*1}" rx="3" ry="${1 + jawClench}" fill="${skinM}" opacity="${jawClench*0.15}"/>
       ` : isAbsence && absenceMouth > 0.1 ? `
-        <!-- ABSENCE: Mouth goes slightly slack/open — vacant expression -->
-        <!-- Slightly open mouth — jaw drops a bit -->
+        <!-- ABSENCE: Mouth goes slightly slack/open, vacant expression -->
+        <!-- Slightly open mouth, jaw drops a bit -->
         <ellipse cx="130" cy="${78 + absenceMouth*2}" rx="${6 + absenceMouth*2}" ry="${1.5 + absenceMouth*2.5}" fill="#2a1a1a" opacity="${0.15 + absenceMouth*0.2}"/>
         <!-- Upper lip -->
         <path d="M121 ${77 + absenceMouth*0.5} Q126 ${76} 130 ${76} Q134 ${76} 139 ${77 + absenceMouth*0.5}" stroke="${skinM}" stroke-width="1" fill="none" opacity="0.4"/>
